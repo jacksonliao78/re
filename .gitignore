@@ -7,7 +7,9 @@ dist/
 # Backend
 __pycache__/
 *.py[cod]
-venv/
+.venv/bin
+.venv/lib
+.venv/include
 *.db
 *.sqlite3
 *.log
