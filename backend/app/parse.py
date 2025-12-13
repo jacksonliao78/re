@@ -4,7 +4,7 @@ import json
 import re
 
 from models import Resume
-from prompts import prompts
+from prompts import parsePrompts
 from pypdf import PdfReader
 from langchain_google_genai import ChatGoogleGenerativeAI
 from fastapi import File
@@ -41,22 +41,21 @@ def parse( file: bytes ) -> Resume:
 
     page_text = page.extract_text()
 
-    for i in range(len(prompts)):
-
-        # example
-        schema_examples = {
+    schema_examples = {
             0: {"summary": "A short 2-3 sentence professional summary."},
             1: {"skills": ["python", "machine learning", "aws"]},
             2: {"experience": [{"company": "Example Co", "title": "SWE", "start": "YYYY-MM", "end": "YYYY-MM or Present", "details": "Brief bullets or sentence."}]},
             3: {"projects": [{"name": "Project Name", "description": "Short description", "tech": ["python"]}]}
         }
 
+    for i in range(len(parsePrompts)):
+
         output_instructions = (
             "IMPORTANT: Reply with valid JSON only and nothing else. Do NOT include any explanatory text, markdown, or backticks. The JSON must match the schema example below exactly (use the same keys):\n"
             + json.dumps(schema_examples[i], indent=2)
         )
 
-        system_prompt = prompts[i] + output_instructions
+        system_prompt = parsePrompts[i] + output_instructions
 
         message = [ ("system", system_prompt), ("user", page_text) ]
 

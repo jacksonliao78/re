@@ -32,4 +32,9 @@ class Resume( BaseModel ):
 
 #suggestion class?
 
+class Suggestion( BaseModel ):
+    original: str
+    updated: str
+    explanation: str
+
 #db stuff
