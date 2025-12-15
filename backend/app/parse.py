@@ -96,6 +96,10 @@ def parse( file: bytes ) -> Resume:
     resume.experience = [ exp.get("details", "") for exp in experience.get("experience", []) ] if experience else None
     resume.projects = [ proj.get("description", "") for proj in projects.get("projects", []) ] if projects else None
 
+    
+
+    print(resume.toString())
+
     return resume
 
 

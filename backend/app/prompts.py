@@ -23,21 +23,21 @@ parsePrompts = [parseSummary, parseSkills, parseExperience, parseProjects]
 tailorSummary = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
 "Only focus on the Summary / Introduction section at the beginning of the text. Maintain a professional style, and aim to " \
 "mimic the tone displayed in this resume." \
-"Return a valid JSON object with a 'summary' key containing an array of suggestion strings."  
+"Return a valid JSON object with a containing an array of suggestions." 
 
 tailorSkills = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
 "Only focus on the Skills / Technolgies section. As this section is mostly words, the list of suggestions should be to either remove " \
 "or add a skill. Only add skills that make sense - that is, don't add a non-existant skill. " \
-"Return a valid JSON object with a 'skills' key containing an array of suggestion strings."
+"Return a valid JSON object with a containing an array of suggestions." 
 
 tailorExperience = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
 "Only focus on the Experience section. For each experience, provide a list of suggestions to more closely align the experience with" \
 "what the job description desires. Do not fabricate information, only enhance it." \
-"Return a valid JSON object with a 'experience' key containing an array of objects, each with an array of suggestion strings. "
+"Return a valid JSON object with a containing an array of suggestions." 
 
 tailorProjects = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
 "Only focus on the Projects section. For each project, provide a list of suggestions to more closely align the experience with" \
 "what the job description desires. Do not fabricate information, only enhance it." \
-"Return a valid JSON object with a 'project' key containing an array of objects, each with an array of suggestion strings. " 
+"Return a valid JSON object with a containing an array of suggestions." 
 
 tailorPrompts = [tailorSummary, tailorSkills, tailorExperience, tailorProjects]
