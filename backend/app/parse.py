@@ -44,8 +44,8 @@ def parse( file: bytes ) -> Resume:
     schema_examples = {
             0: {"summary": "A short 2-3 sentence professional summary."},
             1: {"skills": ["python", "machine learning", "aws"]},
-            2: {"experience": [{"company": "Example Co", "title": "SWE", "start": "YYYY-MM", "end": "YYYY-MM or Present", "details": "Brief bullets or sentence."}]},
-            3: {"projects": [{"name": "Project Name", "description": "Short description", "tech": ["python"]}]}
+            2: {"experience": [{"company": "Example Co", "title": "SWE", "start": "YYYY-MM", "end": "YYYY-MM or Present", "details": ["Developed X", "Used Y", "Found Z"]}]},
+            3: {"projects": [{"name": "Project Name", "description": ["Built X", "Incorporated Y"], "tech": ["python"]}]}
         }
 
     for i in range(len(parsePrompts)):
@@ -98,7 +98,7 @@ def parse( file: bytes ) -> Resume:
 
     
 
-    print(resume.toString())
+    print( resume.to_string() )
 
     return resume
 

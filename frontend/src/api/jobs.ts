@@ -1,9 +1,17 @@
-import { apiFetch } from './client'
+export async function updateQuery(query: { type: string; intern: boolean; fullTime: boolean }) {
+  const resp = await fetch("/jobs/query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(query),
+  });
 
-export async function uploadResume(file: File) {
-    const form = new FormData()
-    form.append( "resume", file );
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error(`updateQuery failed: ${resp.status} ${text}`);
+  }
 
-    const ret = apiFetch('/resume/upload')
-    
+  return resp.json().catch(() => null);
 }
+
+export default { updateQuery };
+ 

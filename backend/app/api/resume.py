@@ -3,6 +3,9 @@ from fastapi import UploadFile
 from fastapi import File
 from fastapi.responses import JSONResponse
 from parse import parse
+from tailor import tailor_resume
+from models import Job
+from models import Resume
 
 router = APIRouter( prefix="/resume", tags=["Resume"] )
 
@@ -26,12 +29,11 @@ async def uploadResume( file: UploadFile ):
 
 # tailors a resume based on a job
 @router.post('/tailor')
-def tailorResume():
+async def tailorResume( resume: Resume, job: Job ):
 
-    #llm integration
-    #important stuff here probably
+    suggestions = await tailor_resume( resume, job )
 
-    return
+    return suggestions #todo json
 
 @router.post('/finish')
 def finishTailoring():

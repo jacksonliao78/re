@@ -40,3 +40,87 @@
 .read-the-docs {
   color: #888;
 }
+
+
+.uploader {
+  max-width: 640px;
+  margin: 1rem auto;
+  text-align: left;
+  border: 1px solid #e6e6e6;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  color: black;
+}
+
+.job-selector {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.job-selector select {
+  margin-left: 0.5rem;
+}
+
+.job-checkboxes label {
+  margin-right: 0.5rem;
+}
+
+.job-selector-status {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.dropzone {
+  border: 2px dashed #ccc;
+  padding: 2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.drop-instructions {
+  color: #666;
+}
+
+.file-name {
+  font-weight: 600;
+}
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.job-select {
+  margin-left: 0.5rem;
+}
+
+.upload-btn {
+  padding: 0.5rem 1rem;
+}
+
+.result pre {
+  background: #f7f7f7;
+  padding: 0.75rem;
+  border-radius: 4px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.right-pane {
+  padding: 1rem;
+}

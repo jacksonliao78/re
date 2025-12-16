@@ -17,7 +17,6 @@ except Exception:
 
 def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
     
-
     suggestions: list[Suggestion] = []
     api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
@@ -39,8 +38,8 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
     schema_examples = {
         0: {"suggestions": [{"original": "Backend developer with experience using Flask", "updated": "Fullstack developer specializing in backend and APIs", "explanation": "Make role broader and emphasize APIs."}]},
         1: {"suggestions": [{"original": "python, flask, docker", "updated": "python, fastapi, docker, kubernetes", "explanation": "Replace Flask with FastAPI and add Kubernetes to highlight your infra experience."}]},
-        2: {"suggestions": [{"original": "Built internal APIs.", "updated": "Designed and implemented scalable REST APIs using FastAPI, improving latency by 25%.", "explanation": "Add specifics and measurable impact to improve recruiter signal."}]},
-        3: {"suggestions": [{"original": "Designed a search engine", "updated": "Search engine using inverted index and Elasticsearch for full-text search", "explanation": "Add technical details to clarify technologies used."}]}
+        2: {"suggestions": [{"entryIdx": 0, "bulletIdx": 2, "original": "Built internal APIs.", "updated": "Designed and implemented scalable REST APIs using FastAPI, improving latency by 25%.", "explanation": "Add specifics and measurable impact."}]},
+        3: {"suggestions": [{"entryIdx": 0, "bulletIdx": 1, "original": "Designed a search engine", "updated": "Search engine using inverted index and Elasticsearch for full-text search", "explanation": "Add technical details to clarify technologies used."}]}
     }
 
     for i in range( len(tailorPrompts) ):
@@ -49,7 +48,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
         if( getattr( resume, keys[i] ) is None ): continue
 
         output_instructions = (
-            "IMPORTANT: Reply with valid JSON only and nothing else. Do NOT include any explanatory text, markdown, or backticks. The JSON must match the schema example below exactly (use the same keys):\n"
+            "IMPORTANT: Do NOT force yourself to create suggestions by fabricating information. It is ok to return an empty list. Reply with valid JSON only and nothing else. Do NOT include any explanatory text, markdown, or backticks. The JSON must match the schema example below exactly (use the same keys):\n"
             + json.dumps(schema_examples[i], indent=2)
         )
         
@@ -63,7 +62,6 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
 
         raw = getattr( res, "text", str(res) )
 
-    
         # try to parse JSON directly, or substring if possible 
         parsed = None
         try:
@@ -85,18 +83,18 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
             #print(f"Parsed {keys[i]}:")
             #print(json.dumps(parsed, indent=2))
 
-
         section = keys[i]
         for suggestion in parsed_outputs[ keys[i] ]:
             s = Suggestion()
             s.section = section
+            s.entryIdx = suggestion["entryIdx"] if suggestion["entryIdx"] else None
+            s.bulletIdx = suggestion["bulletIdx"] if suggestion["bulletIdx"] else None 
             s.original = suggestion["original"]
             s.updated = suggestion["updated"]
             s.explanation = suggestion["explanation"]
 
         suggestions.append( s )
 
-    return s
-
+    return suggestions
 
 
