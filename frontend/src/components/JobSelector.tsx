@@ -1,54 +1,40 @@
 import React, { useState } from "react";
-import { updateQuery } from "../api/jobs";
-import { useRef, useCallback } from "react";
+
+type SelectorPayload = { type: string; intern: boolean; fullTime: boolean };
+
+type Props = {
+  onChange?: (payload: SelectorPayload) => void;
+};
 
 const JOB_TYPES = ["Software Engineer", "Data Scientist", "Product Manager", "Business Analyst"];
 
-export default function JobSelector() {
+export default function JobSelector( { onChange }: Props ) {
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0]);
   const [isIntern, setIsIntern] = useState<boolean>(false);
   const [isFullTime, setIsFullTime] = useState<boolean>(true);
-  const debounceRef = useRef<number | null>(null);
 
-  const sendUpdate = useCallback(
-    async (updated: { type: string; intern: boolean; fullTime: boolean }) => {
-      try {
-        await updateQuery(updated);
-      } catch (e: any) {
-        console.error("updateQuery failed", e);
-      } 
-    },
-    []
-  );
+  function notify(payload: SelectorPayload) {
+    onChange?.(payload);
+  }
 
   function onTypeChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const t = e.target.value;
     setJobType(t);
-    scheduleUpdate({ type: t, intern: isIntern, fullTime: isFullTime });
+    notify({ type: t, intern: isIntern, fullTime: isFullTime });
   }
 
   function onInternChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.checked;
     setIsIntern(v);
-    scheduleUpdate({ type: jobType, intern: v, fullTime: isFullTime });
+    notify({ type: jobType, intern: v, fullTime: isFullTime });
   }
 
   function onFullTimeChange(e: React.ChangeEvent<HTMLInputElement>) {
     const v = e.target.checked;
     setIsFullTime(v);
-    scheduleUpdate({ type: jobType, intern: isIntern, fullTime: v });
+    notify({ type: jobType, intern: isIntern, fullTime: v });
   }
   
-  function scheduleUpdate(payload: { type: string; intern: boolean; fullTime: boolean }) {
-    if (debounceRef.current) {
-      window.clearTimeout(debounceRef.current);
-    }
-    debounceRef.current = window.setTimeout(() => {
-      sendUpdate(payload);
-      debounceRef.current = null;
-    }, 300);
-  }
-
   return (
     <div className="job-selector">
       <label>

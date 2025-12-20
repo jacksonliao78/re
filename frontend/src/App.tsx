@@ -4,9 +4,11 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import ResumeUploader from "./components/ResumeUploader";
 import JobSelector from "./components/JobSelector";
+import JobList from "./components/JobList";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [query, setQuery] = useState<{ type: string; intern: boolean; fullTime: boolean } | undefined>(undefined);
 
   return (
     <div className="app-root">
@@ -24,7 +26,7 @@ function App() {
 
       <main className="app-main">
         <section className="left-pane">
-          <JobSelector />
+          <JobSelector onChange={(q) => setQuery(q)} />
           <ResumeUploader />
         </section>
 
@@ -34,6 +36,10 @@ function App() {
               count is {count}
             </button>
             <p>Edit <code>src/App.tsx</code> and save to test HMR</p>
+          </div>
+
+          <div style={{ marginTop: 12 }}>
+            <JobList query={query} />
           </div>
         </aside>
       </main>

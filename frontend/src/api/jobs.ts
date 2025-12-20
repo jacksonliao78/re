@@ -1,17 +1,31 @@
-export async function updateQuery(query: { type: string; intern: boolean; fullTime: boolean }) {
-  const resp = await fetch("/jobs/query", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(query),
-  });
+import type { Job } from "../types"
 
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error(`updateQuery failed: ${resp.status} ${text}`);
+type SelectorPayload = { type: string; intern: boolean; fullTime: boolean };
+
+export async function fetchJobs(query?: SelectorPayload): Promise<Job[]> {
+  if (query) {
+    // convert selector payload to server SearchQuery shape
+    const levels: string[] = [];
+    if (query.intern) levels.push("intern");
+    if (query.fullTime) levels.push("fulltime");
+
+    const body = { type: query.type, level: levels };
+
+    const resp = await fetch("/jobs/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      throw new Error(`fetchJobs failed: ${resp.status} ${text}`);
+    }
+
+    return resp.json();
   }
 
-  return resp.json().catch(() => null);
+  return []
 }
 
-export default { updateQuery };
- 
+export default { fetchJobs };
