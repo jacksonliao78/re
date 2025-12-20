@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-type SelectorPayload = { type: string; intern: boolean; fullTime: boolean };
+type SelectorPayload = {
+  type: string
+  intern: boolean
+  fullTime: boolean
+};
 
 type Props = {
   onChange?: (payload: SelectorPayload) => void;

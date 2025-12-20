@@ -48,5 +48,5 @@ def clean_scraped_jobs( jobs: DataFrame ) -> list[ Job ]:
     return formatted
 
 
-testQuery = SearchQuery( type = "Software Engineer", level=["internship", "fulltime"])
-scrape( testQuery )
+#testQuery = SearchQuery( type = "Software Engineer", level=["internship", "fulltime"])
+#scrape( testQuery )

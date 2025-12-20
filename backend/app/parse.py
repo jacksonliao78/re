@@ -103,9 +103,9 @@ def parse( file: bytes ) -> Resume:
     return resume
 
 
-pdf_path = Path(__file__).parent / "tests" / "resources" / "random.pdf"
+#pdf_path = Path(__file__).parent / "tests" / "resources" / "random.pdf"
 
-with open(pdf_path, "rb") as f:
-    pdf_bytes = f.read()
+#with open(pdf_path, "rb") as f:
+  #  pdf_bytes = f.read()
 
-text = parse(pdf_bytes)
+#text = parse(pdf_bytes)

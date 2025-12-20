@@ -5,7 +5,8 @@ from api.router import router
 app = FastAPI()
 
 origins = [
-        "http://localhost:3000",  # React URL
+        "http://localhost:3000",  # legacy / other dev URL
+        "http://localhost:5173",  # Vite dev server
         # other origins if needed
     ]
 
