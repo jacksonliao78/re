@@ -8,6 +8,8 @@ import pandas as pd
 
 async def scrape( query: SearchQuery ) -> list[ Job ]:
 
+    print()
+
     if( query is None ): return []
 
     type = query.type
@@ -18,7 +20,7 @@ async def scrape( query: SearchQuery ) -> list[ Job ]:
     for lev in level:
         res = scrape_jobs( site_name=["indeed", "linkedin", "zip_recruiter", "glassdoor"], search_term= type, job_type= lev, results_wanted=10 )
 
-        jobs.append( clean_scraped_jobs( res ) )
+        jobs.extend( clean_scraped_jobs( res ) )
 
     return jobs
 
