@@ -1,7 +1,5 @@
-from models import Resume
-from models import Job
-from models import Suggestion
-from prompts import tailorPrompts
+from backend.app.models import Resume, Job, Suggestion
+from backend.app.prompts import tailor_prompts, tailor_schema_examples
 import os
 import json
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -42,7 +40,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
         3: {"suggestions": [{"entryIdx": 0, "bulletIdx": 1, "original": "Designed a search engine", "updated": "Search engine using inverted index and Elasticsearch for full-text search", "explanation": "Add technical details to clarify technologies used."}]}
     }
 
-    for i in range( len(tailorPrompts) ):
+    for i in range( len(tailor_prompts) ):
 
         #skip if that thing doesn't exist
         if( getattr( resume, keys[i] ) is None ): continue
@@ -52,15 +50,17 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
             + json.dumps(schema_examples[i], indent=2)
         )
         
-        resume_instruction = "Here is the parsed resume you can use to contextualize your edits: \n" + resume.toString()
+        resume_instruction = "Here is the parsed resume you can use to contextualize your edits: \n" + resume.to_string()
 
-        system_prompt = tailorPrompts[i] + output_instructions + resume_instruction
+        system_prompt = tailor_prompts[i] + output_instructions + resume_instruction
 
         message = [ ("system", system_prompt), ("human", job.description ) ]
 
         res = model.invoke( message )
 
         raw = getattr( res, "text", str(res) )
+
+        print(raw)
 
         # try to parse JSON directly, or substring if possible 
         parsed = None

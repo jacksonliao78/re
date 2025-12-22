@@ -5,5 +5,14 @@ export interface Job {
   company?: string;
   location?: string;
   description?: string;
-  url?: string;
+  url: string;
+}
+
+export interface Suggestion {
+  section: string;
+  entryIdx?: string;
+  bulletIdx?: string;
+  original: string;
+  updated: string;
+  explanation: string;
 }

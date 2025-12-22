@@ -4,6 +4,7 @@ from typing import Optional
 
 
 class Job( BaseModel ):
+    id: str
     title: str
     position_level: Optional[str] = None
     description: str 
@@ -35,6 +36,10 @@ class Resume( BaseModel ):
 
         if self.summary:
             parts.append(self.summary.strip())
+
+        if self.skills:
+            for skill in self.skills:
+                parts.append( skill + "  " )
 
         if self.experience:
             parts.append("\nExperience:")

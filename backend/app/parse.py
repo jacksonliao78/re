@@ -3,8 +3,8 @@ import os
 import json
 import re
 
-from models import Resume
-from prompts import parsePrompts
+from backend.app.models import Resume
+from backend.app.prompts import parse_prompts
 from pypdf import PdfReader
 from langchain_google_genai import ChatGoogleGenerativeAI
 from fastapi import File
@@ -48,14 +48,14 @@ def parse( file: bytes ) -> Resume:
             3: {"projects": [{"name": "Project Name", "description": ["Built X", "Incorporated Y"], "tech": ["python"]}]}
         }
 
-    for i in range(len(parsePrompts)):
+    for i in range(len(parse_prompts)):
 
         output_instructions = (
             "IMPORTANT: Reply with valid JSON only and nothing else. Do NOT include any explanatory text, markdown, or backticks. The JSON must match the schema example below exactly (use the same keys):\n"
             + json.dumps(schema_examples[i], indent=2)
         )
 
-        system_prompt = parsePrompts[i] + output_instructions
+        system_prompt = parse_prompts[i] + output_instructions
 
         message = [ ("system", system_prompt), ("user", page_text) ]
 

@@ -1,14 +1,11 @@
-from models import SearchQuery, Job
+from backend.app.models import SearchQuery, Job
 from jobspy import scrape_jobs
 from pandas import DataFrame
 import pandas as pd
-
-
+import hashlib
 
 
 async def scrape( query: SearchQuery ) -> list[ Job ]:
-
-    print()
 
     if( query is None ): return []
 
@@ -37,9 +34,11 @@ def clean_scraped_jobs( jobs: DataFrame ) -> list[ Job ]:
         company = job['company'] if not pd.isna(job["company"]) else None
         location = job['location'] if not pd.isna(job['location']) else None
         url = job['job_url']
+
+        id = get_id( title, company if company else "", location if location else "" )
         
         if not ( pd.isna(job["description"]) ):
-            cleaned = Job( title = title, 
+            cleaned = Job( id = id, title = title, 
                        position_level= position_level if position_level is not None else "", 
                        description= description,
                        company= company if company is not None else "",
@@ -49,6 +48,9 @@ def clean_scraped_jobs( jobs: DataFrame ) -> list[ Job ]:
       
     return formatted
 
+def get_id( title: str, company: str, location: str ):
+    raw = f"{title}|{company}|{location}".lower()
+    return hashlib.sha256( raw.encode() ).hexdigest()[:16]
 
 #testQuery = SearchQuery( type = "Software Engineer", level=["internship", "fulltime"])
 #scrape( testQuery )

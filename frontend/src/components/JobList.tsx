@@ -39,7 +39,7 @@ export default function JobList( { query }: Props ) {
             <div>
                 {jobs.length === 0 && <div>No jobs yet.</div>}
                 {jobs.map((j) => (
-                    <JobCard key={j.id || j.title} job={j} onSelect={(id) => console.log('selected', id)} />
+                    <JobCard key={j.id || j.url} job={j} onSelect={(id) => console.log('selected', id)} />
                 ))}
             </div>
         </div>

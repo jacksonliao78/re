@@ -6,6 +6,7 @@ from backend.app.parse import parse
 from pathlib import Path
 
 job_data = {
+    "id": "1",
     "title": "Senior Backend Engineer",
     "position_level": "Senior",
     "description": (
@@ -21,7 +22,7 @@ job_data = {
 
 job = Job(**job_data)
 
-pdf_path = Path(__file__).parent / "tests" / "resources" / "random.pdf"
+pdf_path = Path(__file__).parent / "resources" / "random.pdf"
 
 with open(pdf_path, "rb") as f:
     pdf_bytes = f.read()
