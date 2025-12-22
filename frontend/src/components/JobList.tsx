@@ -15,10 +15,12 @@ export default function JobList( { query }: Props ) {
     const [error, setError] = useState<string | null>(null);
 
     async function onScrape() {
+        console.log(`onScrape called at ${new Date().toISOString()}`, { query });
         setLoading(true);
         setError(null);
         try {
             const res = await fetchJobs(query);
+            console.log(`fetchJobs returned ${res?.length ?? 0} jobs`);
             setJobs(res || []);
         } catch (e: any) {
             setError(e?.message || 'Failed to fetch jobs');

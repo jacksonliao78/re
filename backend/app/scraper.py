@@ -6,7 +6,7 @@ import pandas as pd
 
 
 
-def scrape( query: SearchQuery ) -> list[ Job ]:
+async def scrape( query: SearchQuery ) -> list[ Job ]:
 
     if( query is None ): return []
 

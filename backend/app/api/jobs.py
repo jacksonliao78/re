@@ -9,9 +9,7 @@ router = APIRouter(prefix="/jobs", tags=["Jobs"])
 @router.post("/search")
 async def findJobs( q: SearchQuery ) -> list[Job]:
     
-    print("d")
     if not q or not getattr( q, "type", None ):
-        print("hi")
         return []
     return await scrape( q )
 
