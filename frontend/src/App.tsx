@@ -31,13 +31,6 @@ function App() {
         </section>
 
         <aside className="right-pane">
-          <div className="card">
-            <button onClick={() => setCount((c) => c + 1)}>
-              count is {count}
-            </button>
-            <p>Edit <code>src/App.tsx</code> and save to test HMR</p>
-          </div>
-
           <div style={{ marginTop: 12 }}>
             <JobList query={query} />
           </div>

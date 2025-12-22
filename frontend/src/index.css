@@ -26,7 +26,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  /*place-items: center;*/
   min-width: 320px;
   min-height: 100vh;
 }
@@ -66,4 +66,28 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* JobCard styles */
+
+.job-card {
+  background: #ffffff;                 
+  border: 1px solid rgba(0, 0, 0, 0.08); 
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  color: black;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+
+.job-desc {
+  max-height: 14rem;        
+  overflow-y: auto;
+  padding-right: 0.5rem;   
+  white-space: pre-wrap;
 }
