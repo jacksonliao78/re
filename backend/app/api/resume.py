@@ -27,14 +27,14 @@ async def uploadResume( file: UploadFile ):
 
     #just need to return the resume so the frontend can display it
     
-    return JSONResponse( status_code=200 )
+    return JSONResponse( status_code=200, content=resume.model_dump() )
 
 
 # tailors a resume based on a job
 @router.post('/tailor')
 async def tailorResume( resume: Resume, job: Job ):
 
-    suggestions = await tailor_resume( resume, job )
+    suggestions = tailor_resume( resume, job )
 
     return suggestions #todo json
 

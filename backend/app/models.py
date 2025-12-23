@@ -17,6 +17,16 @@ class SearchQuery( BaseModel ):
     type: str
     level: list[str]
 
+class Experience( BaseModel ):
+    company: Optional[str] = None
+    title: Optional[str] = None
+    details: list[str] = []
+
+class Project( BaseModel ):
+    name: Optional[str] = None
+    description: list[str] = []
+    tech: Optional[list[str]] = None
+
 # A resume may have some of the following
 # a brief paragraph
 # experience
@@ -25,8 +35,8 @@ class SearchQuery( BaseModel ):
 class Resume(BaseModel):
     summary: Optional[str] = None
     skills: Optional[list[str]] = None
-    experience: Optional[list[list[str]]] = None
-    projects: Optional[list[list[str]]] = None
+    experience: Optional[list[Experience]] = None
+    projects: Optional[list[Project]] = None
 
     def to_string(self) -> str:
         parts: list[str] = []
@@ -41,19 +51,37 @@ class Resume(BaseModel):
 
         if self.experience:
             parts.append("\nExperience:")
-            for entry in self.experience:
-                for bullet in entry:
-                    text = bullet.strip()
+            for exp in self.experience:
+                # Build experience header
+                exp_parts = []
+                if exp.title:
+                    exp_parts.append(exp.title)
+                if exp.company:
+                    exp_parts.append(f"at {exp.company}")
+                
+                if exp_parts:
+                    parts.append(f"- {' '.join(exp_parts)}")
+                
+                # Add details
+                for detail in exp.details:
+                    text = detail.strip()
                     if text:
-                        parts.append(f"- {text}")
+                        parts.append(f"  • {text}")
 
         if self.projects:
             parts.append("\nProjects:")
-            for entry in self.projects:
-                for bullet in entry:
-                    text = bullet.strip()
+            for proj in self.projects:
+                # Project name/header
+                if proj.name:
+                    parts.append(f"- {proj.name}")
+                # Add description bullets
+                for desc in proj.description:
+                    text = desc.strip()
                     if text:
-                        parts.append(f"- {text}")
+                        parts.append(f"  • {text}")
+                # Add tech stack if available
+                if proj.tech:
+                    parts.append(f"  Tech: {', '.join(proj.tech)}")
 
         return "\n".join(parts).strip()
 

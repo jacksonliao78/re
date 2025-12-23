@@ -29,18 +29,34 @@ export function resumeToTipTap( resume: Resume ): JSONContent {
     if (resume.experience?.length) {
         content.content!.push({
             type: 'heading',
-        attrs: { level: 2 },
-        content: [{ type: 'text', text: 'Experience' }],
+            attrs: { level: 2 },
+            content: [{ type: 'text', text: 'Experience' }],
         });
 
-        resume.experience.forEach(entry => {
-            content.content!.push({
-                type: 'bulletList',
-                content: entry.map(line => ({
-                type: 'listItem',
-                content: [{ type: 'paragraph', content: [{ type: 'text', text: line }] }],
-                })),
-            });
+        resume.experience.forEach(exp => {
+            // Experience header with title and company
+            const expParts: string[] = [];
+            if (exp.title) expParts.push(exp.title);
+            if (exp.company) expParts.push(`at ${exp.company}`);
+            
+            if (expParts.length > 0) {
+                content.content!.push({
+                    type: 'paragraph',
+                    attrs: { class: 'experience-header' },
+                    content: [{ type: 'text', text: expParts.join(' ') }],
+                });
+            }
+            
+            // Experience details as bullet list
+            if (exp.details?.length) {
+                content.content!.push({
+                    type: 'bulletList',
+                    content: exp.details.map(detail => ({
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: detail }] }],
+                    })),
+                });
+            }
         });
     }
 
@@ -49,16 +65,37 @@ export function resumeToTipTap( resume: Resume ): JSONContent {
             type: 'heading',
             attrs: { level: 2 },
             content: [{ type: 'text', text: 'Projects' }],
-            });
-
-        resume.projects.forEach(entry => {
-            content.content!.push({
-            type: 'bulletList',
-            content: entry.map(line => ({
-            type: 'listItem',
-            content: [{ type: 'paragraph', content: [{ type: 'text', text: line }] }],
-            })),
         });
+
+        resume.projects.forEach(proj => {
+            // Project name as header
+            if (proj.name) {
+                content.content!.push({
+                    type: 'paragraph',
+                    attrs: { class: 'project-header' },
+                    content: [{ type: 'text', text: proj.name }],
+                });
+            }
+            
+            // Project description as bullet list
+            if (proj.description?.length) {
+                content.content!.push({
+                    type: 'bulletList',
+                    content: proj.description.map(desc => ({
+                        type: 'listItem',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: desc }] }],
+                    })),
+                });
+            }
+            
+            // Tech stack if available
+            if (proj.tech?.length) {
+                content.content!.push({
+                    type: 'paragraph',
+                    attrs: { class: 'project-tech' },
+                    content: [{ type: 'text', text: `Tech: ${proj.tech.join(', ')}` }],
+                });
+            }
         });
     }
 
@@ -66,30 +103,42 @@ export function resumeToTipTap( resume: Resume ): JSONContent {
 }
 
 // applies a suggestion
-export function applySuggestion( resume: Resume, s: Suggestion ) {
-
-    const next = { ... resume }
-
-    const { section, entryIdx, bulletIdx, updated } = s
+export function applySuggestion( resume: Resume, s: Suggestion ): Resume {
+    const next: Resume = { ...resume };
+    const { section, entryIdx, bulletIdx, updated } = s;
 
     switch( section ) {
         case "summary":
-            resume.summary = s.updated
+            next.summary = s.updated;
             break;
         case 'skills':
-            if (entryIdx != null && next.skills) next.skills[entryIdx] = updated;
+            if (entryIdx != null && next.skills) {
+                next.skills = [...next.skills];
+                next.skills[entryIdx] = updated;
+            }
             break;
         case 'experience':
-            if (entryIdx != null && bulletIdx != null && next.experience)
-                next.experience[entryIdx][bulletIdx] = updated;
+            if (entryIdx != null && bulletIdx != null && next.experience && next.experience[entryIdx]) {
+                next.experience = [...next.experience];
+                next.experience[entryIdx] = {
+                    ...next.experience[entryIdx],
+                    details: [...next.experience[entryIdx].details]
+                };
+                next.experience[entryIdx].details[bulletIdx] = updated;
+            }
             break;
         case 'projects':
-            if (entryIdx != null && bulletIdx != null && next.projects)
-                next.projects[entryIdx][bulletIdx] = updated;
+            if (entryIdx != null && bulletIdx != null && next.projects && next.projects[entryIdx]) {
+                next.projects = [...next.projects];
+                next.projects[entryIdx] = {
+                    ...next.projects[entryIdx],
+                    description: [...next.projects[entryIdx].description]
+                };
+                next.projects[entryIdx].description[bulletIdx] = updated;
+            }
             break;
-
     }
-    return;
+    return next;
 }
 
 // makes sure a suggestion can actually be applied
@@ -105,15 +154,26 @@ export function validSuggestion( resume: Resume, s: Suggestion ): boolean {
                 s.entryIdx < resume.skills.length
             );
         case "experience":
+            return (
+                typeof s.entryIdx === "number" &&
+                typeof s.bulletIdx === "number" &&
+                !!resume.experience &&
+                s.entryIdx >= 0 &&
+                s.entryIdx < resume.experience.length &&
+                resume.experience[s.entryIdx] &&
+                s.bulletIdx >= 0 &&
+                s.bulletIdx < resume.experience[s.entryIdx].details.length
+            );
         case "projects":
             return (
                 typeof s.entryIdx === "number" &&
                 typeof s.bulletIdx === "number" &&
-                !!resume[s.section] &&
+                !!resume.projects &&
                 s.entryIdx >= 0 &&
-                s.entryIdx < resume[s.section]!.length &&
+                s.entryIdx < resume.projects.length &&
+                resume.projects[s.entryIdx] &&
                 s.bulletIdx >= 0 &&
-                s.bulletIdx < resume[s.section]![s.entryIdx].length
+                s.bulletIdx < resume.projects[s.entryIdx].description.length
             );
 
         default:

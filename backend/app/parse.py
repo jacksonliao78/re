@@ -3,7 +3,7 @@ import os
 import json
 import re
 
-from models import Resume
+from models import Resume, Experience, Project
 from prompts import parse_prompts
 from pypdf import PdfReader
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -93,8 +93,32 @@ def parse( file: bytes ) -> Resume:
     resume = Resume()
     resume.summary = summary.get("summary") if summary else None
     resume.skills = skills.get("skills") if skills else None
-    resume.experience = [ exp.get("details", "") for exp in experience.get("experience", []) ] if experience else None
-    resume.projects = [ proj.get("description", "") for proj in projects.get("projects", []) ] if projects else None
+    
+    # Convert experience data to Experience objects
+    if experience and experience.get("experience"):
+        resume.experience = []
+        for exp_data in experience.get("experience", []):
+            exp = Experience(
+                company=exp_data.get("company"),
+                title=exp_data.get("title"),
+                details=exp_data.get("details", [])
+            )
+            resume.experience.append(exp)
+    else:
+        resume.experience = None
+    
+    # Convert projects data to Project objects
+    if projects and projects.get("projects"):
+        resume.projects = []
+        for proj_data in projects.get("projects", []):
+            proj = Project(
+                name=proj_data.get("name"),
+                description=proj_data.get("description", []),
+                tech=proj_data.get("tech")
+            )
+            resume.projects.append(proj)
+    else:
+        resume.projects = None
 
     
 

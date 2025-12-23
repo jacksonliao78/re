@@ -1,12 +1,26 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { uploadResume } from "../api/resume";
+import ResumeEditor from "./ResumeEditor";
+import type { Resume } from "../types";
+import { saveResume, loadResume, clearResume } from "../utils/resumeStorage";
 import "../App.css";
 
 export default function ResumeUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loadedFromStorage, setLoadedFromStorage] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // load Resume from local storage if possible
+  useEffect(() => {
+    const savedResume = loadResume();
+    if (savedResume) {
+      setResume(savedResume);
+      setLoadedFromStorage(true);
+    }
+  }, []);
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -26,14 +40,33 @@ export default function ResumeUploader() {
   async function onSubmit() {
     if (!file) return alert("Please select a PDF file first.");
     setLoading(true);
-    setResult(null);
+    setResume(null);
+    setError(null);
+    setLoadedFromStorage(false);
     try {
       const res = await uploadResume(file);
-      setResult(res);
+      if (res.ok && res.data) {
+        const newResume = res.data as Resume;
+        setResume(newResume);
+        saveResume(newResume);
+      } else {
+        setError(res.data?.message || "Failed to upload resume");
+      }
     } catch (err) {
-      setResult({ ok: false, error: String(err) });
+      setError(String(err));
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleClearResume() {
+    setResume(null);
+    setFile(null);
+    setError(null);
+    setLoadedFromStorage(false);
+    clearResume();
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
   }
 
@@ -66,12 +99,30 @@ export default function ResumeUploader() {
         <button onClick={onSubmit} disabled={loading} className="upload-btn">
           {loading ? "Uploading…" : "Upload"}
         </button>
+        {resume && (
+          <button onClick={handleClearResume} className="clear-btn" style={{ marginLeft: "0.5rem" }}>
+            Clear Resume
+          </button>
+        )}
       </div>
 
-      <div className="result">
-        <h3>Result</h3>
-        <pre>{result ? JSON.stringify(result, null, 2) : "No result yet."}</pre>
-      </div>
+      {loadedFromStorage && resume && (
+        <div style={{ marginTop: "0.5rem", fontSize: "0.9rem", color: "#666" }}>
+          Resume loaded from previous session
+        </div>
+      )}
+
+      {error && (
+        <div className="upload-error" style={{ color: "red", marginTop: "1rem" }}>
+          {error}
+        </div>
+      )}
+
+      {resume && (
+        <div className="resume-display" style={{ marginTop: "1rem" }}>
+          <ResumeEditor resume={resume} editable={false} />
+        </div>
+      )}
     </div>
   );
 }

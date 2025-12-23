@@ -1,4 +1,4 @@
-from backend.app.models import SearchQuery, Job
+from models import Job, SearchQuery
 from jobspy import scrape_jobs
 from pandas import DataFrame
 import pandas as pd

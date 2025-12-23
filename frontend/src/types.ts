@@ -17,9 +17,21 @@ export interface Suggestion {
   explanation: string;
 }
 
+export interface Experience {
+  company?: string | null;
+  title?: string | null;
+  details: string[];
+}
+
+export interface Project {
+  name?: string | null;
+  description: string[];
+  tech?: string[] | null;
+}
+
 export interface Resume {
   summary?: string | null;
   skills?: string[] | null;
-  experience?: string[][] | null;
-  projects?: string[][] | null;
+  experience?: Experience[] | null;
+  projects?: Project[] | null;
 };
