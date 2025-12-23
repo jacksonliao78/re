@@ -13,6 +13,9 @@ class Job( BaseModel ):
     url: str
     #whatever other attributes a job might have
 
+class SearchQuery( BaseModel ):
+    type: str
+    level: list[str]
 
 # A resume may have some of the following
 # a brief paragraph

@@ -4,8 +4,7 @@ from fastapi import File
 from fastapi.responses import JSONResponse
 from parse import parse
 from tailor import tailor_resume
-from models import Job
-from models import Resume
+from models import Job, Resume
 
 router = APIRouter( prefix="/resume", tags=["Resume"] )
 
@@ -16,7 +15,11 @@ async def uploadResume( file: UploadFile ):
     if not file.filename.endswith(".pdf"):
         return JSONResponse( status_code=400, content={"message": "Requires .pdf ending"})
     
-    resume = await parse( file.read() )
+    contents = await file.read()
+    
+    resume = parse( contents )
+
+    file.close()
     
 
     #put it in a DB ? later prob

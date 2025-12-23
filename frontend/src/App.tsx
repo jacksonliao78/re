@@ -5,6 +5,7 @@ import "./App.css";
 import ResumeUploader from "./components/ResumeUploader";
 import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
+import ResumeEditor from "./components/ResumeEditor";
 
 function App() {
   const [query, setQuery] = useState<{ type: string; intern: boolean; fullTime: boolean } | undefined>(undefined);
@@ -35,6 +36,7 @@ function App() {
           </div>
         </aside>
       </main>
+  
     </div>
   );
 }

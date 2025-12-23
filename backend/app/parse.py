@@ -3,8 +3,8 @@ import os
 import json
 import re
 
-from backend.app.models import Resume
-from backend.app.prompts import parse_prompts
+from models import Resume
+from prompts import parse_prompts
 from pypdf import PdfReader
 from langchain_google_genai import ChatGoogleGenerativeAI
 from fastapi import File

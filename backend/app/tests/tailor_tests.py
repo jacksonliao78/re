@@ -1,8 +1,8 @@
 import pytest
 
-from backend.app.models import Job, Resume
-from backend.app.tailor import tailor_resume
-from backend.app.parse import parse
+from app.models import Job, Resume
+from app.tailor import tailor_resume
+from app.parse import parse
 from pathlib import Path
 
 job_data = {
