@@ -7,7 +7,6 @@ import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [query, setQuery] = useState<{ type: string; intern: boolean; fullTime: boolean } | undefined>(undefined);
 
   return (

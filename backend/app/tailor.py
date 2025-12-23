@@ -33,12 +33,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
 
     #first we need to give it the resume
 
-    schema_examples = {
-        0: {"suggestions": [{"original": "Backend developer with experience using Flask", "updated": "Fullstack developer specializing in backend and APIs", "explanation": "Make role broader and emphasize APIs."}]},
-        1: {"suggestions": [{"original": "python, flask, docker", "updated": "python, fastapi, docker, kubernetes", "explanation": "Replace Flask with FastAPI and add Kubernetes to highlight your infra experience."}]},
-        2: {"suggestions": [{"entryIdx": 0, "bulletIdx": 2, "original": "Built internal APIs.", "updated": "Designed and implemented scalable REST APIs using FastAPI, improving latency by 25%.", "explanation": "Add specifics and measurable impact."}]},
-        3: {"suggestions": [{"entryIdx": 0, "bulletIdx": 1, "original": "Designed a search engine", "updated": "Search engine using inverted index and Elasticsearch for full-text search", "explanation": "Add technical details to clarify technologies used."}]}
-    }
+
 
     for i in range( len(tailor_prompts) ):
 
@@ -47,7 +42,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
 
         output_instructions = (
             "IMPORTANT: Do NOT force yourself to create suggestions by fabricating information. It is ok to return an empty list. Reply with valid JSON only and nothing else. Do NOT include any explanatory text, markdown, or backticks. The JSON must match the schema example below exactly (use the same keys):\n"
-            + json.dumps(schema_examples[i], indent=2)
+            + json.dumps(tailor_schema_examples[i], indent=2)
         )
         
         resume_instruction = "Here is the parsed resume you can use to contextualize your edits: \n" + resume.to_string()
@@ -93,7 +88,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
             s.updated = suggestion["updated"]
             s.explanation = suggestion["explanation"]
 
-        suggestions.append( s )
+            suggestions.append( s )
 
     return suggestions
 

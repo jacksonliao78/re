@@ -10,9 +10,16 @@ export interface Job {
 
 export interface Suggestion {
   section: string;
-  entryIdx?: string;
-  bulletIdx?: string;
+  entryIdx?: number;
+  bulletIdx?: number;
   original: string;
   updated: string;
   explanation: string;
 }
+
+export interface Resume {
+  summary?: string | null;
+  skills?: string[] | null;
+  experience?: string[][] | null;
+  projects?: string[][] | null;
+};
