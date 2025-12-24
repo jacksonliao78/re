@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SuggestionCard from "./SuggestionCard";
 import { getSuggestions } from "../api/tailor";
 import type { Suggestion, Resume, Job } from "../types";
@@ -16,9 +16,17 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
     const [error, setError] = useState<string | null>(null);
     const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
     const [rejectedIds, setRejectedIds] = useState<Set<string>>(new Set());
+    
+    // track current resume to ensure we always use the latest version
+    const [currentResume, setCurrentResume] = useState<Resume | null>(resume);
+    
+    // update  when prop changes
+    useEffect(() => {
+        setCurrentResume(resume);
+    }, [resume]);
 
     async function handleFetchSuggestions() {
-        if (!resume || !job) {
+        if (!currentResume || !job) {
             setError("Resume and job are required to generate suggestions");
             return;
         }
@@ -26,8 +34,12 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
         setLoading(true);
         setError(null);
         try {
-            const fetched = await getSuggestions(resume, job);
+            const fetched = await getSuggestions(currentResume, job);
             setSuggestions(fetched);
+
+            // reset with new list
+            setAppliedIds(new Set());
+            setRejectedIds(new Set());
         } catch (err: any) {
             setError(err?.message || "Failed to fetch suggestions");
             console.error("Error fetching suggestions:", err);
@@ -47,6 +59,7 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
     }
 
     function handleResumeUpdate(updatedResume: Resume) {
+        setCurrentResume(updatedResume);
         onResumeUpdate?.(updatedResume);
     }
 
@@ -56,7 +69,7 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
         return !rejectedIds.has(suggestionId);
     });
 
-    if (!resume || !job) {
+    if (!currentResume || !job) {
         return (
             <div className="suggestion-list">
                 <div className="suggestion-list-empty">
@@ -121,7 +134,7 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
                             <SuggestionCard
                                 key={`${suggestionId}-${index}`}
                                 suggestion={suggestion}
-                                resume={resume}
+                                resume={currentResume}
                                 onApply={handleApply}
                                 onReject={handleReject}
                                 onResumeUpdate={handleResumeUpdate}
