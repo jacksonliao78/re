@@ -197,3 +197,247 @@
 .resume-editor-content[contenteditable="false"] {
   cursor: default;
 }
+
+/* SuggestionCard styles */
+.suggestion-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  text-align: left;
+}
+
+.suggestion-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.suggestion-section {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.suggestion-context {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.suggestion-status {
+  margin-left: auto;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.suggestion-status.applied {
+  background: #d4edda;
+  color: #155724;
+}
+
+.suggestion-status.invalid {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.suggestion-content {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+
+.suggestion-original,
+.suggestion-updated {
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.suggestion-original {
+  background: #fff3cd;
+  border-left: 3px solid #ffc107;
+}
+
+.suggestion-updated {
+  background: #d1ecf1;
+  border-left: 3px solid #17a2b8;
+}
+
+.suggestion-original strong,
+.suggestion-updated strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.suggestion-original p,
+.suggestion-updated p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.suggestion-arrow {
+  font-size: 1.5rem;
+  color: #666;
+  align-self: center;
+  padding: 0 0.5rem;
+}
+
+.suggestion-explanation {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #6c757d;
+}
+
+.suggestion-explanation strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.suggestion-explanation p {
+  margin: 0;
+  line-height: 1.5;
+  color: #666;
+}
+
+.suggestion-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.suggestion-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.suggestion-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.apply-btn {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.apply-btn:hover:not(:disabled) {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.reject-btn:hover:not(:disabled) {
+  background: #c82333;
+  border-color: #bd2130;
+}
+
+/* SuggestionList styles */
+.suggestion-list {
+  margin: 1rem 0;
+}
+
+.suggestion-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e6e6e6;
+}
+
+.suggestion-list-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.suggestion-list-stats {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+.suggestion-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.suggestion-list-loading,
+.suggestion-list-empty,
+.suggestion-list-error {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.suggestion-list-error {
+  color: #dc3545;
+  background: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.suggestion-list-actions {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.suggestion-fetch-btn,
+.suggestion-retry-btn {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-fetch-btn:hover:not(:disabled),
+.suggestion-retry-btn:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-fetch-btn:disabled,
+.suggestion-retry-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

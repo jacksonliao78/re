@@ -5,22 +5,37 @@ import type { Resume } from "../types";
 import { saveResume, loadResume, clearResume } from "../utils/resumeStorage";
 import "../App.css";
 
-export default function ResumeUploader() {
+type Props = {
+  resume?: Resume | null;
+  onResumeChange?: (resume: Resume | null) => void;
+}
+
+export default function ResumeUploader({ resume: propResume, onResumeChange }: Props = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [resume, setResume] = useState<Resume | null>(null);
+  const [resume, setResume] = useState<Resume | null>(propResume || null);
   const [error, setError] = useState<string | null>(null);
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // sync with prop changes
+  useEffect(() => {
+    if (propResume !== undefined) {
+      setResume(propResume);
+    }
+  }, [propResume]);
+
   // load Resume from local storage if possible
   useEffect(() => {
-    const savedResume = loadResume();
-    if (savedResume) {
-      setResume(savedResume);
-      setLoadedFromStorage(true);
+    if (propResume === undefined) {
+      const savedResume = loadResume();
+      if (savedResume) {
+        setResume(savedResume);
+        setLoadedFromStorage(true);
+        onResumeChange?.(savedResume);
+      }
     }
-  }, []);
+  }, [propResume, onResumeChange]);
 
   function onDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -49,6 +64,7 @@ export default function ResumeUploader() {
         const newResume = res.data as Resume;
         setResume(newResume);
         saveResume(newResume);
+        onResumeChange?.(newResume);
       } else {
         setError(res.data?.message || "Failed to upload resume");
       }
@@ -65,6 +81,7 @@ export default function ResumeUploader() {
     setError(null);
     setLoadedFromStorage(false);
     clearResume();
+    onResumeChange?.(null);
     if (inputRef.current) {
       inputRef.current.value = "";
     }

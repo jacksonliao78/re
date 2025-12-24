@@ -5,7 +5,7 @@ import type { Job } from "../types"
 type Props = {
     job: Job;
     onSelect ?: (jobId?: string) => void;
-    onTailor?: (jobId?: string) => void;
+    onTailor?: (job: Job) => void;
 }
 
 export default function JobCard( { job, onSelect, onTailor }: Props ) {
@@ -19,7 +19,7 @@ export default function JobCard( { job, onSelect, onTailor }: Props ) {
 
     function handleTailor(e: React.MouseEvent) {
         e.stopPropagation();
-        onTailor?.(job.id) ?? onSelect?.(job.id);
+        onTailor?.(job);
     }
 
     return (

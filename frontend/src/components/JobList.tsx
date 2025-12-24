@@ -7,9 +7,10 @@ type SelectorPayload = { type: string; intern: boolean; fullTime: boolean };
 
 type Props = {
   query?: SelectorPayload;
+  onTailor?: (job: Job) => void;
 }
 
-export default function JobList( { query }: Props ) {
+export default function JobList( { query, onTailor }: Props ) {
     const [jobs, setJobs] = useState< Job[] >([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,12 @@ export default function JobList( { query }: Props ) {
             <div>
                 {jobs.length === 0 && <div>No jobs yet.</div>}
                 {jobs.map((j) => (
-                    <JobCard key={j.id || j.url} job={j} onSelect={(id) => console.log('selected', id)} />
+                    <JobCard 
+                        key={j.id || j.url} 
+                        job={j} 
+                        onSelect={(id) => console.log('selected', id)}
+                        onTailor={onTailor}
+                    />
                 ))}
             </div>
         </div>

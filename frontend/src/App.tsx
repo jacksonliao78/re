@@ -5,9 +5,23 @@ import "./App.css";
 import ResumeUploader from "./components/ResumeUploader";
 import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
+import SuggestionList from "./components/SuggestionList";
+import type { Resume, Job } from "./types";
+import { saveResume } from "./utils/resumeStorage";
 
 function App() {
   const [query, setQuery] = useState<{ type: string; intern: boolean; fullTime: boolean } | undefined>(undefined);
+  const [resume, setResume] = useState<Resume | null>(null);
+  const [jobForTailoring, setJobForTailoring] = useState<Job | null>(null);
+
+  function handleResumeUpdate(updatedResume: Resume) {
+    setResume(updatedResume);
+    saveResume(updatedResume);
+  }
+
+  function handleTailor(job: Job) {
+    setJobForTailoring(job);
+  }
 
   return (
     <div className="app-root">
@@ -26,13 +40,22 @@ function App() {
       <main className="app-main">
         <section className="left-pane">
           <JobSelector onChange={(q) => setQuery(q)} />
-          <ResumeUploader />
+          <ResumeUploader onResumeChange={setResume} resume={resume} />
         </section>
 
         <aside className="right-pane">
           <div style={{ marginTop: 12 }}>
-            <JobList query={query} />
+            <JobList query={query} onTailor={handleTailor} />
           </div>
+          {jobForTailoring && (
+            <div style={{ marginTop: 24 }}>
+              <SuggestionList 
+                resume={resume} 
+                job={jobForTailoring}
+                onResumeUpdate={handleResumeUpdate}
+              />
+            </div>
+          )}
         </aside>
       </main>
   

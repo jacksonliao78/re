@@ -88,8 +88,8 @@ class Resume(BaseModel):
 
 class Suggestion( BaseModel ):
     section: str
-    entryIdx: Optional[str]
-    bulletIdx: Optional[str]
+    entryIdx: Optional[int] = None
+    bulletIdx: Optional[int] = None
     original: str
     updated: str
     explanation: str

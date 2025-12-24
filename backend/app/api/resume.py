@@ -36,7 +36,10 @@ async def tailorResume( resume: Resume, job: Job ):
 
     suggestions = tailor_resume( resume, job )
 
-    return suggestions #todo json
+    return JSONResponse(
+        status_code=200,
+        content=[s.model_dump() for s in suggestions]
+    )
 
 @router.post('/finish')
 def finishTailoring():
