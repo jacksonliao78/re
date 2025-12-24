@@ -79,16 +79,34 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
             #print(json.dumps(parsed, indent=2))
 
         section = keys[i]
-        for suggestion in parsed_outputs[ keys[i] ]:
-            s = Suggestion()
-            s.section = section
-            s.entryIdx = suggestion["entryIdx"] if suggestion["entryIdx"] else None
-            s.bulletIdx = suggestion["bulletIdx"] if suggestion["bulletIdx"] else None 
-            s.original = suggestion["original"]
-            s.updated = suggestion["updated"]
-            s.explanation = suggestion["explanation"]
+        if parsed_outputs[ keys[i] ] is not None:
+            for suggestion in parsed_outputs[ keys[i] ]:
+                s = Suggestion()
+                s.section = section
+                # Convert string indices to integers if present (LLM may return strings)
+                entry_idx = suggestion.get("entryIdx")
+                if entry_idx is not None and entry_idx != "":
+                    try:
+                        s.entryIdx = int(entry_idx)
+                    except (ValueError, TypeError):
+                        s.entryIdx = None
+                else:
+                    s.entryIdx = None
+                    
+                bullet_idx = suggestion.get("bulletIdx")
+                if bullet_idx is not None and bullet_idx != "":
+                    try:
+                        s.bulletIdx = int(bullet_idx)
+                    except (ValueError, TypeError):
+                        s.bulletIdx = None
+                else:
+                    s.bulletIdx = None
+                    
+                s.original = suggestion["original"]
+                s.updated = suggestion["updated"]
+                s.explanation = suggestion["explanation"]
 
-            suggestions.append( s )
+                suggestions.append( s )
 
     return suggestions
 
