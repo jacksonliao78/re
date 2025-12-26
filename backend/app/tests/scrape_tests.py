@@ -1,8 +1,8 @@
 from app.scraper import scrape
 import pytest
 from unittest.mock import patch
-from app.models import Job
-from app.models import SearchQuery
+from backend.app.models import Job
+from backend.app.models import SearchQuery
 
 @pytest.fixture
 def sample_query():
