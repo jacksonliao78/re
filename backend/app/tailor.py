@@ -81,30 +81,31 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
         section = keys[i]
         if parsed_outputs[ keys[i] ] is not None:
             for suggestion in parsed_outputs[ keys[i] ]:
-                s = Suggestion()
-                s.section = section
                 # Convert string indices to integers if present (LLM may return strings)
                 entry_idx = suggestion.get("entryIdx")
+                entry_idx_int = None
                 if entry_idx is not None and entry_idx != "":
                     try:
-                        s.entryIdx = int(entry_idx)
+                        entry_idx_int = int(entry_idx)
                     except (ValueError, TypeError):
-                        s.entryIdx = None
-                else:
-                    s.entryIdx = None
+                        entry_idx_int = None
                     
                 bullet_idx = suggestion.get("bulletIdx")
+                bullet_idx_int = None
                 if bullet_idx is not None and bullet_idx != "":
                     try:
-                        s.bulletIdx = int(bullet_idx)
+                        bullet_idx_int = int(bullet_idx)
                     except (ValueError, TypeError):
-                        s.bulletIdx = None
-                else:
-                    s.bulletIdx = None
-                    
-                s.original = suggestion["original"]
-                s.updated = suggestion["updated"]
-                s.explanation = suggestion["explanation"]
+                        bullet_idx_int = None
+                
+                s = Suggestion(
+                    section=section,
+                    entryIdx=entry_idx_int,
+                    bulletIdx=bullet_idx_int,
+                    original=suggestion["original"],
+                    updated=suggestion["updated"],
+                    explanation=suggestion["explanation"]
+                )
 
                 suggestions.append( s )
 
