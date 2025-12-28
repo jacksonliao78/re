@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { uploadResume } from "../api/resume";
-import ResumeEditor from "./ResumeEditor";
 import type { Resume } from "../types";
 import { saveResume, loadResume, clearResume } from "../utils/resumeStorage";
 import "../App.css";
@@ -135,11 +134,6 @@ export default function ResumeUploader({ resume: propResume, onResumeChange }: P
         </div>
       )}
 
-      {resume && (
-        <div className="resume-display" style={{ marginTop: "1rem" }}>
-          <ResumeEditor resume={resume} editable={false} />
-        </div>
-      )}
     </div>
   );
 }

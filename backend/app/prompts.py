@@ -73,8 +73,8 @@ tailor_schema_examples = {
             "entryIdx": "1",
             "bulletIdx": None,
             "original": "flask",
-            "updated": "fastapi",
-            "explanation": "Replaces Flask with FastAPI to match job requirements."
+            "updated": "",
+            "explanation": "Replaces flask since it is completely irrelevant."
         },
         {
             "section": "skills",

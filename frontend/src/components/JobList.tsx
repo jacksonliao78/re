@@ -32,22 +32,26 @@ export default function JobList( { query, onTailor }: Props ) {
 
     return (
         <div className="job-list">
-            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
                 <button onClick={onScrape} disabled={loading}>{loading ? 'Searching…' : 'Scrape jobs'}</button>
-                {error && <div className="error">{error}</div>}
+                {error && <div className="error" style={{ color: 'red' }}>{error}</div>}
             </div>
 
-            <div>
-                {jobs.length === 0 && <div>No jobs yet.</div>}
-                {jobs.map((j) => (
-                    <JobCard 
-                        key={j.id || j.url} 
-                        job={j} 
-                        onSelect={(id) => console.log('selected', id)}
-                        onTailor={onTailor}
-                    />
-                ))}
-            </div>
+            {jobs.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#999', padding: '1rem' }}>No jobs yet. Click "Scrape jobs" to search.</div>
+            ) : (
+                <div className="job-list-container">
+                    {jobs.map((j) => (
+                        <div key={j.id || j.url} style={{ minWidth: '300px', flexShrink: 0 }}>
+                            <JobCard 
+                                job={j} 
+                                onSelect={(id) => console.log('selected', id)}
+                                onTailor={onTailor}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

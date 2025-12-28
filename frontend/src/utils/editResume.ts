@@ -117,7 +117,7 @@ export function applySuggestion( resume: Resume, s: Suggestion ): Resume {
                 
                 // if updated is empty string, remove the skill
                 if (updated.trim() === '') {
-                    // Find by value (original) to handle shifting indices when multiple removals occur
+                    // find by original to handle shifting indices when multiple removals occur
                     const skillToRemove = s.original.trim();
                     const removeIdx = next.skills.findIndex(skill => skill.trim() === skillToRemove);
                     if (removeIdx >= 0) {

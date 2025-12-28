@@ -1,11 +1,10 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import ResumeUploader from "./components/ResumeUploader";
 import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
 import SuggestionList from "./components/SuggestionList";
+import ResumeEditor from "./components/ResumeEditor";
 import type { Resume, Job } from "./types";
 import { saveResume } from "./utils/resumeStorage";
 
@@ -26,39 +25,43 @@ function App() {
   return (
     <div className="app-root">
       <header className="app-header">
-        <div>
-          <a href="https://vite.dev" target="_blank" rel="noreferrer">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank" rel="noreferrer">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
-        </div>
-        <h1>Resume </h1>
+        <h1>Resume Tailoring</h1>
+        <ResumeUploader onResumeChange={setResume} resume={resume} />
+        <JobSelector onChange={(q) => setQuery(q)} />
       </header>
 
       <main className="app-main">
-        <section className="left-pane">
-          <JobSelector onChange={(q) => setQuery(q)} />
-          <ResumeUploader onResumeChange={setResume} resume={resume} />
+        <section className="job-list-section">
+          <JobList query={query} onTailor={handleTailor} />
         </section>
 
-        <aside className="right-pane">
-          <div style={{ marginTop: 12 }}>
-            <JobList query={query} onTailor={handleTailor} />
+        <section className="content-section">
+          <div className="editor-pane">
+            {resume ? (
+              <ResumeEditor resume={resume} editable={false} />
+            ) : (
+              <div className="editor-placeholder">
+                Upload a resume to see it here
+              </div>
+            )}
           </div>
-          {jobForTailoring && (
-            <div style={{ marginTop: 24 }}>
+
+          <aside className="suggestions-pane">
+            {jobForTailoring && (
               <SuggestionList 
                 resume={resume} 
                 job={jobForTailoring}
                 onResumeUpdate={handleResumeUpdate}
               />
-            </div>
-          )}
-        </aside>
+            )}
+            {!jobForTailoring && (
+              <div className="suggestions-placeholder">
+                Select a job and click "Tailor" to see suggestions
+              </div>
+            )}
+          </aside>
+        </section>
       </main>
-  
     </div>
   );
 }
