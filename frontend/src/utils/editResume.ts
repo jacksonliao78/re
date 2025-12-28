@@ -114,7 +114,28 @@ export function applySuggestion( resume: Resume, s: Suggestion ): Resume {
         case 'skills':
             if (entryIdx != null && next.skills) {
                 next.skills = [...next.skills];
-                next.skills[entryIdx] = updated;
+                
+                // if updated is empty string, remove the skill
+                if (updated.trim() === '') {
+                    // Find by value (original) to handle shifting indices when multiple removals occur
+                    const skillToRemove = s.original.trim();
+                    const removeIdx = next.skills.findIndex(skill => skill.trim() === skillToRemove);
+                    if (removeIdx >= 0) {
+                        next.skills.splice(removeIdx, 1);
+                    }
+                } 
+                // if original is empty string, this means "add new skill" - append it
+                else if (s.original && s.original.trim() === '') {
+                    next.skills.push(updated.trim());
+                } 
+                // replace existing skill - find by value (original) to handle shifting indices
+                else {
+                    const skillToReplace = s.original.trim();
+                    const replaceIdx = next.skills.findIndex(skill => skill.trim() === skillToReplace);
+                    if (replaceIdx >= 0) {
+                        next.skills[replaceIdx] = updated.trim();
+                    }
+                }
             }
             break;
         case 'experience':

@@ -27,10 +27,16 @@ tailor_summary = "You are an assistant tasked with providing a list of suggestio
 "Return a valid JSON array of suggestion objects, each with 'original', 'updated', and 'explanation'." \
 
 tailor_skills = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
-"Only focus on the Skills / Technologies section. As this section is mostly words, the list of suggestions should be to either remove " \
-"irrelevant skills or add relevant skills mentioned in the job description. Only add skills that make sense - that is, don't add a non-existent skill. " \
-"Analyze the job description (provided below) to identify which skills to prioritize. " \
-"Return a valid JSON array of suggestion objects, each with 'original', 'updated', and 'explanation'." \
+"Only focus on the Skills / Technologies section. Each suggestion should target ONE individual skill. " \
+"For each suggestion, provide 'entryIdx' (the array index of the skill to modify, use 0 for first skill). " \
+"The 'original' field should be the single skill string currently at that index, or an empty string '' if adding a new skill. " \
+"The 'updated' field should be the new single skill string, or an empty string '' if removing the skill. " \
+"Three types of suggestions: (1) Replace: original=existing skill, updated=new skill, entryIdx=skill's current index. " \
+"(2) Remove: original=existing skill, updated='', entryIdx=skill's current index. " \
+"(3) Add: original='', updated=new skill to add, entryIdx can be any value (will be appended). " \
+"Only suggest skills that make sense - don't add non-existent skills. " \
+"Analyze the job description (provided below) to identify which skills to add, replace, or remove. " \
+"Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'." \
 
 tailor_experience = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
 "Only focus on the Experience section. For each experience entry, provide suggestions to more closely align the bullet points with " \
@@ -64,11 +70,27 @@ tailor_schema_examples = {
     1: [
         {
             "section": "skills",
+            "entryIdx": "1",
+            "bulletIdx": None,
+            "original": "flask",
+            "updated": "fastapi",
+            "explanation": "Replaces Flask with FastAPI to match job requirements."
+        },
+        {
+            "section": "skills",
             "entryIdx": "2",
             "bulletIdx": None,
-            "original": "python, flask, docker",
-            "updated": "python, fastapi, docker, kubernetes",
-            "explanation": "Replaces Flask with FastAPI and adds Kubernetes to highlight infrastructure skills."
+            "original": "docker",
+            "updated": "kubernetes",
+            "explanation": "Replaces Docker with Kubernetes to highlight container orchestration skills."
+        },
+        {
+            "section": "skills",
+            "entryIdx": "5",
+            "bulletIdx": None,
+            "original": "",
+            "updated": "kubernetes",
+            "explanation": "Adds Kubernetes as a new skill to highlight container orchestration experience."
         }
     ],
     2: [
