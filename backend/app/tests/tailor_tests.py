@@ -28,7 +28,6 @@ with open(pdf_path, "rb") as f:
     pdf_bytes = f.read()
 
 text = parse(pdf_bytes)
-
 suggestions = tailor_resume(text, job)  # returns list[Suggestion]
 for s in suggestions:
     print(s.model_dump())

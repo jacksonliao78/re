@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="app-root">
       <header className="app-header">
-        <h1>Resume Tailoring</h1>
+        <h1>get a job</h1>
         <ResumeUploader onResumeChange={setResume} resume={resume} />
         <JobSelector onChange={(q) => setQuery(q)} />
       </header>

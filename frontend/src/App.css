@@ -7,10 +7,9 @@
 
 .app-root {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .app-header {
@@ -19,26 +18,26 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e6e6e6;
+  background: #2a2a2a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.75rem;
-  color: #333;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .uploader {
   width: 100%;
   max-width: 600px;
   text-align: left;
-  border: 1px solid #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 8px;
-  background: #fff;
-  color: black;
+  background: #2a2a2a;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .job-selector {
@@ -50,6 +49,11 @@
 
 .job-selector select {
   margin-left: 0.5rem;
+  background: #2a2a2a;
+  color: rgba(255, 255, 255, 0.87);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 0.5rem;
 }
 
 .job-checkboxes label {
@@ -58,7 +62,7 @@
 
 .job-selector-status {
   font-size: 0.9rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .dropzone {
@@ -71,7 +75,7 @@
 }
 
 .drop-instructions {
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .file-name {
@@ -94,25 +98,27 @@
 }
 
 .result pre {
-  background: #f7f7f7;
+  background: #1a1a1a;
   padding: 0.75rem;
   border-radius: 4px;
   max-height: 240px;
   overflow: auto;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .app-main {
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .job-list-section {
   flex-shrink: 0;
   padding: 1rem;
-  background: #fff;
-  border-bottom: 1px solid #e6e6e6;
+  background: #1a1a1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .content-section {
@@ -120,7 +126,7 @@
   grid-template-columns: 1fr 400px;
   gap: 1rem;
   padding: 1rem;
-  overflow: hidden;
+  min-height: 0;
   flex: 1;
 }
 
@@ -142,10 +148,10 @@
 .suggestions-placeholder {
   padding: 2rem;
   text-align: center;
-  color: #999;
-  border: 2px dashed #ddd;
+  color: rgba(255, 255, 255, 0.5);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  background: #f9f9f9;
+  background: #2a2a2a;
   margin-top: 1rem;
 }
 
@@ -159,11 +165,11 @@
 
 .job-list-container {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
   scrollbar-width: thin;
-  scrollbar-color: #ccc #f0f0f0;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #1a1a1a;
 }
 
 .job-list-container::-webkit-scrollbar {
@@ -171,17 +177,17 @@
 }
 
 .job-list-container::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: #1a1a1a;
   border-radius: 4px;
 }
 
 .job-list-container::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 4px;
 }
 
 .job-list-container::-webkit-scrollbar-thumb:hover {
-  background: #999;
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .job-list button {
@@ -208,20 +214,20 @@
 .resume-editor {
   width: 100%;
   text-align: left;
-  border: 1px solid #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 8px;
-  background: #fff;
-  color: black;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #2a2a2a;
+  color: rgba(255, 255, 255, 0.87);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .resume-editor-timestamp {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .resume-editor-wrapper {
@@ -231,7 +237,7 @@
 .resume-editor-loading {
   padding: 2rem;
   text-align: center;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* TipTap editor styles */
@@ -255,7 +261,7 @@
 
 .resume-editor-content h2 {
   font-size: 1.5rem;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 0.5rem;
 }
 
@@ -279,11 +285,11 @@
 
 /* SuggestionCard styles */
 .suggestion-card {
-  border: 1px solid #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  background: #fff;
+  background: #2a2a2a;
   text-align: left;
 }
 
@@ -298,14 +304,14 @@
 
 .suggestion-section {
   font-weight: 600;
-  color: #333;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 0.9rem;
   text-transform: capitalize;
 }
 
 .suggestion-context {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-style: italic;
 }
 
@@ -342,13 +348,15 @@
 }
 
 .suggestion-original {
-  background: #fff3cd;
+  background: rgba(255, 193, 7, 0.15);
   border-left: 3px solid #ffc107;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .suggestion-updated {
-  background: #d1ecf1;
+  background: rgba(23, 162, 184, 0.15);
   border-left: 3px solid #17a2b8;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .suggestion-original strong,
@@ -356,7 +364,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .suggestion-original p,
@@ -367,7 +375,7 @@
 
 .suggestion-arrow {
   font-size: 1.5rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   align-self: center;
   padding: 0 0.5rem;
 }
@@ -375,22 +383,22 @@
 .suggestion-explanation {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: #f8f9fa;
+  background: #1a1a1a;
   border-radius: 4px;
-  border-left: 3px solid #6c757d;
+  border-left: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .suggestion-explanation strong {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .suggestion-explanation p {
   margin: 0;
   line-height: 1.5;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .suggestion-actions {
@@ -398,7 +406,7 @@
   gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .suggestion-btn {
@@ -453,18 +461,18 @@
   justify-content: space-between;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e6e6e6;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .suggestion-list-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #333;
+  color: rgba(255, 255, 255, 0.87);
 }
 
 .suggestion-list-stats {
   font-size: 0.9rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-style: italic;
 }
 
@@ -479,10 +487,10 @@
 .suggestion-list-error {
   padding: 2rem;
   text-align: center;
-  color: #666;
-  border: 1px solid #e6e6e6;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: #f8f9fa;
+  background: #2a2a2a;
 }
 
 .suggestion-list-error {

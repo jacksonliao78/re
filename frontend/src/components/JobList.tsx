@@ -42,7 +42,7 @@ export default function JobList( { query, onTailor }: Props ) {
             ) : (
                 <div className="job-list-container">
                     {jobs.map((j) => (
-                        <div key={j.id || j.url} style={{ minWidth: '300px', flexShrink: 0 }}>
+                        <div key={j.id || j.url} style={{ minWidth: '250px', width: '250px', flexShrink: 0 }}>
                             <JobCard 
                                 job={j} 
                                 onSelect={(id) => console.log('selected', id)}
