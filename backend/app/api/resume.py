@@ -44,6 +44,5 @@ async def tailorResume( resume: Resume, job: Job ):
 @router.post('/finish')
 def finishTailoring():
 
-
     #put job in ignored
     return
