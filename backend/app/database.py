@@ -11,10 +11,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():
-    """Dependency for getting database session"""
-    pass
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def init_db():
-    """Initialize database tables"""
-    pass
-
+    Base.metadata.create_all(bind=engine)

@@ -131,5 +131,4 @@ def parse( file: bytes ) -> Resume:
 
 #with open(pdf_path, "rb") as f:
   #  pdf_bytes = f.read()
-
 #text = parse(pdf_bytes)
