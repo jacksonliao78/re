@@ -3,6 +3,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://user:password@localhost/resumedb")
 
 engine = create_engine(DATABASE_URL)
