@@ -56,6 +56,10 @@ export default function SuggestionCard( { suggestion, resume, onApply, onReject,
     }
 
     const sectionLabel = suggestion.section.charAt(0).toUpperCase() + suggestion.section.slice(1);
+    const isSkillAddition =
+        suggestion.section === "skills" &&
+        (suggestion.original ?? "").trim() === "" &&
+        (suggestion.updated ?? "").trim() !== "";
     const contextInfo = suggestion.entryIdx !== undefined 
         ? `Entry ${suggestion.entryIdx}${suggestion.bulletIdx !== undefined ? `, Bullet ${suggestion.bulletIdx}` : ''}`
         : '';
@@ -87,6 +91,11 @@ export default function SuggestionCard( { suggestion, resume, onApply, onReject,
                 <div className="suggestion-explanation">
                     <strong>Explanation:</strong>
                     <p>{suggestion.explanation}</p>
+                    {isSkillAddition && (
+                        <p style={{ marginTop: "0.5rem", fontStyle: "italic", color: "rgba(255, 255, 255, 0.75)" }}>
+                            Only add this skill if you already understand and can confidently discuss it.
+                        </p>
+                    )}
                 </div>
             )}
 

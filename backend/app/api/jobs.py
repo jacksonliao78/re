@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from scraper import scrape
-from models import Job, SearchQuery
+from app.scraper import scrape
+from app.models import Job, SearchQuery
 
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 

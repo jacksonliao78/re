@@ -3,6 +3,7 @@ import "./App.css";
 import ResumeUploader from "./components/ResumeUploader";
 import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
+import PasteJobDescription from "./components/PasteJobDescription";
 import SuggestionList from "./components/SuggestionList";
 import ResumeEditor from "./components/ResumeEditor";
 import type { Resume, Job } from "./types";
@@ -27,12 +28,17 @@ function App() {
       <header className="app-header">
         <h1>get a job</h1>
         <ResumeUploader onResumeChange={setResume} resume={resume} />
-        <JobSelector onChange={(q) => setQuery(q)} />
       </header>
 
       <main className="app-main">
-        <section className="job-list-section">
-          <JobList query={query} onTailor={handleTailor} />
+        <section className="job-scrape-section">
+          <div className="job-scrape-header">
+            <JobSelector onChange={(q) => setQuery(q)} />
+          </div>
+          <div className="job-scrape-body">
+            <JobList query={query} onTailor={handleTailor} />
+            <PasteJobDescription onTailor={handleTailor} />
+          </div>
         </section>
 
         <section className="content-section">

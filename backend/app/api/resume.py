@@ -2,9 +2,9 @@ from fastapi import APIRouter
 from fastapi import UploadFile
 from fastapi import File
 from fastapi.responses import JSONResponse
-from parse import parse
-from tailor import tailor_resume
-from models import Job, Resume
+from app.parse import parse
+from app.tailor import tailor_resume
+from app.models import Job, Resume
 
 router = APIRouter( prefix="/resume", tags=["Resume"] )
 

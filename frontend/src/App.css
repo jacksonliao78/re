@@ -1,12 +1,15 @@
 #root {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .app-root {
   width: 100%;
+  max-width: 1200px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -114,11 +117,22 @@
   overflow-y: auto;
 }
 
-.job-list-section {
+.job-scrape-section {
   flex-shrink: 0;
-  padding: 1rem;
+  padding: 1rem 1rem 0.5rem;
   background: #1a1a1a;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.job-scrape-header {
+  margin-bottom: 0.75rem;
+}
+
+.job-scrape-body {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  background: #111;
 }
 
 .content-section {
@@ -142,6 +156,7 @@
   flex-direction: column;
   overflow-y: auto;
   min-height: 0;
+  max-height: 70vh;
 }
 
 .editor-placeholder,
@@ -480,6 +495,8 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .suggestion-list-loading,

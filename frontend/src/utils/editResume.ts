@@ -111,33 +111,35 @@ export function applySuggestion( resume: Resume, s: Suggestion ): Resume {
         case "summary":
             next.summary = s.updated;
             break;
-        case 'skills':
-            if (entryIdx != null && next.skills) {
-                next.skills = [...next.skills];
-                
-                // if updated is empty string, remove the skill
-                if (updated.trim() === '') {
-                    // find by original to handle shifting indices when multiple removals occur
-                    const skillToRemove = s.original.trim();
-                    const removeIdx = next.skills.findIndex(skill => skill.trim() === skillToRemove);
-                    if (removeIdx >= 0) {
-                        next.skills.splice(removeIdx, 1);
-                    }
-                } 
-                // if original is empty string, this means "add new skill" - append it
-                else if (s.original && s.original.trim() === '') {
-                    next.skills.push(updated.trim());
-                } 
-                // replace existing skill - find by value (original) to handle shifting indices
-                else {
-                    const skillToReplace = s.original.trim();
-                    const replaceIdx = next.skills.findIndex(skill => skill.trim() === skillToReplace);
-                    if (replaceIdx >= 0) {
-                        next.skills[replaceIdx] = updated.trim();
-                    }
+        case "skills": {
+            const original = (s.original ?? "").trim();
+            const updatedTrimmed = updated.trim();
+
+            // Ensure we always have an array to work with
+            next.skills = Array.isArray(next.skills) ? [...next.skills] : [];
+
+            const isAdd = original === "" && updatedTrimmed !== "";
+            const isRemove = original !== "" && updatedTrimmed === "";
+            const isReplace = original !== "" && updatedTrimmed !== "";
+
+            if (isAdd) {
+                // Add new skill at the end
+                next.skills.push(updatedTrimmed);
+            } else if (isRemove) {
+                // Remove by value to avoid index-shift bugs
+                const removeIdx = next.skills.findIndex(skill => skill.trim() === original);
+                if (removeIdx >= 0) {
+                    next.skills.splice(removeIdx, 1);
+                }
+            } else if (isReplace) {
+                // Replace by value to avoid index-shift bugs
+                const replaceIdx = next.skills.findIndex(skill => skill.trim() === original);
+                if (replaceIdx >= 0) {
+                    next.skills[replaceIdx] = updatedTrimmed;
                 }
             }
             break;
+        }
         case 'experience':
             if (entryIdx != null && bulletIdx != null && next.experience && next.experience[entryIdx]) {
                 next.experience = [...next.experience];
@@ -167,13 +169,22 @@ export function validSuggestion( resume: Resume, s: Suggestion ): boolean {
     switch( s.section ) {
         case "summary":
             return typeof resume.summary === "string";
-        case "skills":
+        case "skills": {
+            const original = (s.original ?? "").trim();
+            const updated = (s.updated ?? "").trim();
+            const isAdd = original === "" && updated !== "";
+
+            // Add-skill suggestions are always allowed; we append safely.
+            if (isAdd) return true;
+
+            // For remove/replace, require a valid index into the current skills array.
             return (
                 typeof s.entryIdx === "number" &&
-                !!resume.skills &&
+                Array.isArray(resume.skills) &&
                 s.entryIdx >= 0 &&
                 s.entryIdx < resume.skills.length
             );
+        }
         case "experience":
             return (
                 typeof s.entryIdx === "number" &&

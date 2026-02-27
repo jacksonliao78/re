@@ -82,7 +82,7 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
     return (
         <div className="suggestion-list">
             <div className="suggestion-list-header">
-                <h3>Suggestions for {job.title}</h3>
+                <h3>Suggestions</h3>
                 {suggestions.length > 0 && (
                     <span className="suggestion-list-stats">
                         {visibleSuggestions.length} available

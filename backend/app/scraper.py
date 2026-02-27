@@ -1,4 +1,4 @@
-from models import Job, SearchQuery
+from app.models import Job, SearchQuery
 from jobspy import scrape_jobs
 from pandas import DataFrame
 import pandas as pd

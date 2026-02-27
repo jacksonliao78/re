@@ -1,5 +1,5 @@
-from models import Resume, Job, Suggestion
-from prompts import tailor_prompts, tailor_schema_examples
+from app.models import Resume, Job, Suggestion
+from app.prompts import tailor_prompts, tailor_schema_examples
 import os
 import json
 from langchain_google_genai import ChatGoogleGenerativeAI

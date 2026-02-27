@@ -1,13 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.router import router
+from app.api.router import router
 
 app = FastAPI()
 
 origins = [
         "http://localhost:3000",  # legacy / other dev URL
         "http://localhost:5173",  # Vite dev server
-        # other origins if needed
     ]
 
 app.add_middleware(
