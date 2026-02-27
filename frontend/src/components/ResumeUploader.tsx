@@ -6,15 +6,19 @@ import "../App.css";
 
 type Props = {
   resume?: Resume | null;
+  originalResume?: Resume | null;
   onResumeChange?: (resume: Resume | null) => void;
+  /** When set, show "Save as default" and call this to store the current default (original) resume */
+  onSaveDefault?: () => void | Promise<void>;
 }
 
-export default function ResumeUploader({ resume: propResume, onResumeChange }: Props = {}) {
+export default function ResumeUploader({ resume: propResume, originalResume, onResumeChange, onSaveDefault }: Props = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [resume, setResume] = useState<Resume | null>(propResume || null);
   const [error, setError] = useState<string | null>(null);
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
+  const [savingDefault, setSavingDefault] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // sync with prop changes
@@ -118,6 +122,23 @@ export default function ResumeUploader({ resume: propResume, onResumeChange }: P
         {resume && (
           <button onClick={handleClearResume} className="clear-btn" style={{ marginLeft: "0.5rem" }}>
             Clear Resume
+          </button>
+        )}
+        {onSaveDefault && originalResume && (
+          <button
+            type="button"
+            onClick={async () => {
+              setSavingDefault(true);
+              try {
+                await onSaveDefault();
+              } finally {
+                setSavingDefault(false);
+              }
+            }}
+            disabled={savingDefault}
+            style={{ marginLeft: "0.5rem" }}
+          >
+            {savingDefault ? "Saving…" : "Save as default resume"}
           </button>
         )}
       </div>

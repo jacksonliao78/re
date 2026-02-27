@@ -73,7 +73,7 @@ pip install -r requirements.txt
 
    - `<your-db-user>` is whatever user can connect locally (often your macOS username).
 
-4. Initialize tables:
+4. Initialize tables (run again after pulling changes that add new tables/columns):
 
    ```bash
    cd backend
@@ -81,7 +81,7 @@ pip install -r requirements.txt
    python -m app.init_db
    ```
 
-   You should see log output indicating tables were created (e.g. `users`).
+   You should see log output indicating tables were created (e.g. `users`, `ignored_jobs`).
 
 For more detail / troubleshooting, see `backend/SETUP_DATABASE.md`.
 
@@ -103,7 +103,9 @@ Key routes:
 - `POST /resume/upload` – upload a PDF (multipart/form-data) and get parsed resume JSON
 - `POST /resume/tailor` – send `{ resume, job }` JSON, receive an array of suggestions
 - `POST /jobs/search` – scrape jobs given a search query
-- `POST /auth/register`, `/auth/login`, `/auth/me` – auth endpoints (JWT-based)
+- `POST /auth/register`, `/auth/login`, `GET /auth/me` – auth (JWT)
+- `GET /auth/me/default-resume`, `PUT /auth/me/default-resume` – stored default resume
+- `GET /auth/me/ignored-jobs`, `POST /auth/me/ignored-jobs` – ignored job IDs (filtered from scrape when logged in)
 
 ---
 
@@ -133,25 +135,24 @@ Make sure the backend is running first so the proxy can connect.
 
 ## 5. Using the app
 
+You must **log in or register** to use the app. After that:
+
 1. **Upload a resume**
-   - At the top of the page, drag & drop a PDF or click to browse.
+   - At the top, drag & drop a PDF or click to browse.
    - After upload, the parsed resume appears in the read‑only editor on the left.
+   - **Save as default resume**: When logged in, you can click **“Save as default resume”** to store this as your baseline. It will be loaded when you next log in and used when you **rechoose** a job (resetting the working copy to this default).
 
 2. **Select or paste a job**
-   - Use the **job selector + “Scrape jobs”** to fetch job postings into the horizontal job list.
-   - Or paste a job description in the **“paste job description”** textarea.  
-     Clicking “Use this description” creates a synthetic job for tailoring.
+   - Use **job selector + “Scrape jobs”** to fetch job postings. When logged in, jobs you’ve **ignored** or **completed** are filtered out automatically (by stable job id).
+   - Or **paste a job description** and click “Use this description” to create a synthetic job for tailoring.
+   - On a job card, **Select** then **Tailor** to open suggestions, or **Ignore** to hide it from future scrapes.
 
-3. **Generate suggestions**
-   - With a resume uploaded and a job selected/pasted, click **“Generate Suggestions”**.
-   - Suggestions appear in the right‑hand column. You can:
-     - **Apply** suggestions (they update the in‑memory resume and the preview)
-     - **Reject** suggestions to hide them
-   - For skill additions, the UI reminds you: **only add skills you actually understand and can discuss**.
+3. **Suggestions**
+   - With a resume and job selected, click **“Generate Suggestions”**.
+   - **Apply** or **Reject** suggestions. When you’re done (or not), click **Complete**: the job is added to your ignored list, the suggestions panel clears, and the updated resume stays until you select a new job (then it resets to your default/original).
 
-4. **Auth (optional)**
-   - Backend auth endpoints are wired up but the frontend is currently set up to let you use the app without forcing login.
-   - You can hit `/auth/register` and `/auth/login` from `http://localhost:8000/docs` to test user creation / JWTs.
+4. **Log out**
+   - Use **Log out** in the header to sign out.
 
 ---
 

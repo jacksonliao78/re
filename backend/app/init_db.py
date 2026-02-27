@@ -4,8 +4,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from sqlalchemy import text
 from app.database import init_db, engine, Base
-from app.db.models import User  
+from app.db.models import User, IgnoredJob  # noqa: F401 - register tables with Base  
 
 def main():
     
@@ -32,6 +33,10 @@ def main():
     try:
         # This creates all tables defined in models that inherit from Base
         init_db()
+        # Add new columns to existing users table if present (idempotent)
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS default_resume JSONB"))
+            conn.commit()
         print("Database tables created successfully")
         
         # Verify by listing tables

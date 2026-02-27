@@ -7,6 +7,30 @@ from app.db.models import User
 import uuid
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
+
+
+async def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_optional),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Return current user if valid token present, else None."""
+    if not credentials:
+        return None
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    if payload is None:
+        return None
+    user_id = payload.get("sub")
+    if user_id is None:
+        return None
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        return None
+    user = db.query(User).filter(User.id == user_uuid).first()
+    return user
+
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

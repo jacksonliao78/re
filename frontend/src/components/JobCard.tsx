@@ -4,11 +4,12 @@ import type { Job } from "../types"
 
 type Props = {
     job: Job;
-    onSelect ?: (jobId?: string) => void;
+    onSelect?: (jobId?: string) => void;
     onTailor?: (job: Job) => void;
+    onIgnore?: (job: Job) => void;
 }
 
-export default function JobCard( { job, onSelect, onTailor }: Props ) {
+export default function JobCard( { job, onSelect, onTailor, onIgnore }: Props ) {
     const [selected, setSelected] = useState(false);
 
     function handleSelect() {
@@ -30,10 +31,15 @@ export default function JobCard( { job, onSelect, onTailor }: Props ) {
             <div className="job-actions">
                 <button onClick={(e) => { e.stopPropagation(); handleSelect(); }}>{selected ? 'Deselect' : 'Select'}</button>
                 {selected && (
-                    <button onClick={handleTailor} className="tailor-btn">Tailor</button>
+                    <>
+                        <button onClick={handleTailor} className="tailor-btn">Tailor</button>
+                        {onIgnore && (
+                            <button onClick={(e) => { e.stopPropagation(); onIgnore(job); }}>Ignore</button>
+                        )}
+                    </>
                 )}
                 {job.url && (
-                <a href={job.url} target="_blank" rel="noreferrer">View</a>
+                    <a href={job.url} target="_blank" rel="noreferrer">View</a>
                 )}
             </div>
         </article>

@@ -8,20 +8,21 @@ type SelectorPayload = { type: string; intern: boolean; fullTime: boolean };
 type Props = {
   query?: SelectorPayload;
   onTailor?: (job: Job) => void;
+  onIgnore?: (job: Job) => void;
+  token?: string | null;
 }
 
-export default function JobList( { query, onTailor }: Props ) {
+export default function JobList( { query, onTailor, onIgnore, token }: Props ) {
     const [jobs, setJobs] = useState< Job[] >([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     async function onScrape() {
-        console.log(`onScrape called at ${new Date().toISOString()}`, { query });
+        if (!query) return;
         setLoading(true);
         setError(null);
         try {
-            const res = await fetchJobs(query);
-            console.log(`fetchJobs returned ${res?.length ?? 0} jobs`);
+            const res = await fetchJobs(query, token);
             setJobs(res || []);
         } catch (e: any) {
             setError(e?.message || 'Failed to fetch jobs');
@@ -43,10 +44,11 @@ export default function JobList( { query, onTailor }: Props ) {
                 <div className="job-list-container">
                     {jobs.map((j) => (
                         <div key={j.id || j.url} style={{ minWidth: '250px', width: '250px', flexShrink: 0 }}>
-                            <JobCard 
-                                job={j} 
-                                onSelect={(id) => console.log('selected', id)}
+                            <JobCard
+                                job={j}
+                                onSelect={() => {}}
                                 onTailor={onTailor}
+                                onIgnore={onIgnore}
                             />
                         </div>
                     ))}

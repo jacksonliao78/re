@@ -8,9 +8,11 @@ type Props = {
     resume: Resume | null;
     job: Job | null;
     onResumeUpdate?: (updatedResume: Resume) => void;
+    // add job to ignored and clear suggestions panel 
+    onComplete?: (job: Job) => void;
 }
 
-export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
+export default function SuggestionList({ resume, job, onResumeUpdate, onComplete }: Props) {
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -83,12 +85,24 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
         <div className="suggestion-list">
             <div className="suggestion-list-header">
                 <h3>Suggestions</h3>
-                {suggestions.length > 0 && (
-                    <span className="suggestion-list-stats">
-                        {visibleSuggestions.length} available
-                        {appliedIds.size > 0 && ` • ${appliedIds.size} applied`}
-                    </span>
-                )}
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    {suggestions.length > 0 && (
+                        <span className="suggestion-list-stats">
+                            {visibleSuggestions.length} available
+                            {appliedIds.size > 0 && ` • ${appliedIds.size} applied`}
+                        </span>
+                    )}
+                    {job && onComplete && (
+                        <button
+                            type="button"
+                            className="suggestion-btn"
+                            onClick={() => onComplete(job)}
+                            style={{ marginLeft: "auto" }}
+                        >
+                            Complete
+                        </button>
+                    )}
+                </div>
             </div>
 
             {suggestions.length === 0 && !loading && !error && (
@@ -148,5 +162,3 @@ export default function SuggestionList({ resume, job, onResumeUpdate }: Props) {
         </div>
     );
 }
-
-// test
