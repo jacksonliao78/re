@@ -18,20 +18,33 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('Passwords do not match. Please correct and try again.');
       return;
     }
 
     try {
       await register(email, password);
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('already registered') || msg.toLowerCase().includes('email already')) {
+        setError('This email is already registered. Try logging in instead.');
+      } else if (msg.includes('fetch') || msg.includes('network') || err?.name === 'TypeError') {
+        setError('Cannot reach the server. Check your connection and try again.');
+      } else {
+        setError(msg || 'Registration failed. Please try again.');
+      }
     }
   };
 
   return (
     <div className="auth-container">
       <h2>Register</h2>
+      {error && (
+        <div className="auth-alert" role="alert">
+          <strong>Registration failed</strong>
+          <p>{error}</p>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
           <label htmlFor="email">Email:</label>
@@ -66,7 +79,6 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
             disabled={isLoading}
           />
         </div>
-        {error && <div className="error-message">{error}</div>}
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Registering...' : 'Register'}
         </button>
