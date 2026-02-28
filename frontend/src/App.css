@@ -708,6 +708,20 @@
   color: var(--accent-hover);
 }
 
+.link-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+.link-button:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
 .switch-auth button:disabled {
   opacity: 0.6;
   cursor: not-allowed;

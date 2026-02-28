@@ -15,7 +15,9 @@ import { saveResume } from "./utils/resumeStorage";
 
 function App() {
   const { isAuthenticated, token, isLoading, logout } = useAuth();
+  const [showAuthScreen, setShowAuthScreen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [refreshJobsKey, setRefreshJobsKey] = useState(0);
   const [query, setQuery] = useState<{ type: string; intern: boolean; fullTime: boolean } | undefined>(undefined);
   const [originalResume, setOriginalResume] = useState<Resume | null>(null);
   const [resume, setResume] = useState<Resume | null>(null);
@@ -34,6 +36,11 @@ function App() {
       })
       .catch(() => {});
   }, [isAuthenticated, token]);
+
+  // When user logs in, leave auth screen
+  useEffect(() => {
+    if (isAuthenticated) setShowAuthScreen(false);
+  }, [isAuthenticated]);
 
   function handleNewResume(newResume: Resume | null) {
     setOriginalResume(newResume);
@@ -55,6 +62,7 @@ function App() {
     if (token) {
       try {
         await addIgnoredJob(job.id || job.url, token);
+        setRefreshJobsKey((k) => k + 1);
       } catch (_) {}
     }
     setJobForTailoring(null);
@@ -68,13 +76,20 @@ function App() {
     );
   }
 
-  if (!isAuthenticated) {
+  // Optional auth screen: only when user chose "Log in"
+  if (showAuthScreen && !isAuthenticated) {
     return (
       <div className="app-root">
         {authMode === "login" ? (
-          <Login onSwitchToRegister={() => setAuthMode("register")} />
+          <Login
+            onSwitchToRegister={() => setAuthMode("register")}
+            onContinueWithoutAccount={() => setShowAuthScreen(false)}
+          />
         ) : (
-          <Register onSwitchToLogin={() => setAuthMode("login")} />
+          <Register
+            onSwitchToLogin={() => setAuthMode("login")}
+            onContinueWithoutAccount={() => setShowAuthScreen(false)}
+          />
         )}
       </div>
     );
@@ -85,7 +100,20 @@ function App() {
       <header className="app-header">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
           <h1 style={{ margin: 0 }}>get a job</h1>
-          <button type="button" onClick={logout} className="clear-btn">Log out</button>
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={() => {
+                logout();
+                setShowAuthScreen(true);
+              }}
+              className="clear-btn"
+            >
+              Log out
+            </button>
+          ) : (
+            <button type="button" onClick={() => setShowAuthScreen(true)} className="clear-btn">Log in</button>
+          )}
         </div>
         <ResumeUploader
           onResumeChange={handleNewResume}
@@ -106,6 +134,7 @@ function App() {
               onTailor={handleTailor}
               onIgnore={handleIgnoreOrComplete}
               token={token}
+              refreshTrigger={refreshJobsKey}
             />
             <PasteJobDescription onTailor={handleTailor} />
           </div>

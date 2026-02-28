@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import JobCard from "./JobCard";
 import type { Job } from '../types'
 import { fetchJobs } from '../api/jobs';
@@ -10,9 +10,11 @@ type Props = {
   onTailor?: (job: Job) => void;
   onIgnore?: (job: Job) => void;
   token?: string | null;
+  /** When this changes, re-run scrape (e.g. after user ignores a job). */
+  refreshTrigger?: number;
 }
 
-export default function JobList( { query, onTailor, onIgnore, token }: Props ) {
+export default function JobList( { query, onTailor, onIgnore, token, refreshTrigger }: Props ) {
     const [jobs, setJobs] = useState< Job[] >([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -30,6 +32,12 @@ export default function JobList( { query, onTailor, onIgnore, token }: Props ) {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (query && refreshTrigger != null && refreshTrigger > 0) {
+            onScrape();
+        }
+    }, [refreshTrigger]);
 
     return (
         <div className="job-list">

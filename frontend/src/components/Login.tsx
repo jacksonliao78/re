@@ -4,9 +4,10 @@ import '../App.css';
 
 interface LoginProps {
   onSwitchToRegister: () => void;
+  onContinueWithoutAccount?: () => void;
 }
 
-export default function Login({ onSwitchToRegister }: LoginProps) {
+export default function Login({ onSwitchToRegister, onContinueWithoutAccount }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +72,13 @@ export default function Login({ onSwitchToRegister }: LoginProps) {
           Register
         </button>
       </p>
+      {onContinueWithoutAccount && (
+        <p className="switch-auth" style={{ marginTop: "0.75rem" }}>
+          <button type="button" onClick={onContinueWithoutAccount} disabled={isLoading} className="link-button">
+            Continue without account
+          </button>
+        </p>
+      )}
     </div>
   );
 }

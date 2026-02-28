@@ -135,24 +135,25 @@ Make sure the backend is running first so the proxy can connect.
 
 ## 5. Using the app
 
-You must **log in or register** to use the app. After that:
+You can **use the app without an account**. Log in is optional and unlocks saved default resume and ignored-job filtering.
 
 1. **Upload a resume**
    - At the top, drag & drop a PDF or click to browse.
    - After upload, the parsed resume appears in the read‑only editor on the left.
-   - **Save as default resume**: When logged in, you can click **“Save as default resume”** to store this as your baseline. It will be loaded when you next log in and used when you **rechoose** a job (resetting the working copy to this default).
+   - **Save as default resume** (logged-in only): Click **“Save as default resume”** to store this as your baseline. It loads on next login and is used when you **rechoose** a job (resetting the working copy to this default).
 
 2. **Select or paste a job**
-   - Use **job selector + “Scrape jobs”** to fetch job postings. When logged in, jobs you’ve **ignored** or **completed** are filtered out automatically (by stable job id).
+   - Use **job selector + “Scrape jobs”** to fetch job postings. When logged in, jobs you’ve **ignored** or **completed** are filtered out, and the list **reloads automatically** after you ignore a job so it disappears.
    - Or **paste a job description** and click “Use this description” to create a synthetic job for tailoring.
-   - On a job card, **Select** then **Tailor** to open suggestions, or **Ignore** to hide it from future scrapes.
+   - On a job card, **Select** then **Tailor** to open suggestions, or **Ignore** to hide it from future scrapes (when logged in, the list refreshes after ignore).
 
 3. **Suggestions**
    - With a resume and job selected, click **“Generate Suggestions”**.
-   - **Apply** or **Reject** suggestions. When you’re done (or not), click **Complete**: the job is added to your ignored list, the suggestions panel clears, and the updated resume stays until you select a new job (then it resets to your default/original).
+   - **Apply** or **Reject** suggestions. Click **Complete** when done: the job is added to your ignored list (if logged in), the suggestions panel clears, and the updated resume stays until you select a new job (then it resets to your default/original).
 
-4. **Log out**
-   - Use **Log out** in the header to sign out.
+4. **Log in / Log out**
+   - **Log in** in the header opens the login screen; you can **Continue without account** to return to the app.
+   - **Log out** signs you out and returns you to the login screen.
 
 ---
 
@@ -178,21 +179,4 @@ You must **log in or register** to use the app. After that:
 - **LLM / parsing / tailoring fails with GOOGLE_API_KEY error**  
   Double‑check that `GOOGLE_API_KEY` is set in `backend/.env` and that `python-dotenv` is installed (it’s in `requirements.txt`).
 
----
 
-## 7. Running tests (backend)
-
-From `backend/` with venv active:
-
-```bash
-pytest
-```
-
-There are tests for:
-
-- Parsing (`app/tests/parse_tests.py`)
-- Tailoring (`app/tests/tailor_tests.py`)
-- Scraping (`app/tests/scrape_tests.py`)
-- Auth (`app/tests/auth_tests.py`)
-
-This is my attempt at making internship (or job) searching easier and more fruitful. 
