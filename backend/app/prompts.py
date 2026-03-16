@@ -1,60 +1,152 @@
 
-parse_summary = "You are an assistant tasked with extracting a professional summary from a resume. " \
-"Extract only the Summary / Introduction section at the beginning of the text. " \
-"Return a valid JSON object with a 'summary' key containing the extracted text (or null if none found)."
+parse_heading_education = (
+    "You are an assistant that extracts heading and education information from a resume. "
+    "Extract ONLY:\n"
+    "- Heading: full name, phone, email, overall location (city and state or country), LinkedIn URL, GitHub URL.\n"
+    "- Education: each degree program, with school name, school location, degree text, start date, and end date.\n"
+    "Return a single JSON object with:\n"
+    "- 'heading': object with keys 'name', 'phone', 'email', 'location', 'linkedin', 'github' (use null for missing values).\n"
+    "- 'education': array of objects with keys 'school', 'location', 'degree', 'start', 'end'.\n"
+    "Ignore work experience, projects, skills, awards, and any other sections."
+)
 
-parse_skills = "You are an assistant tasked with extracting a list of skills from a resume. " \
-"Extract only the Skills / Technologies section. " \
-"Return a valid JSON object with a 'skills' key containing an array of skill strings."
+parse_experience_projects = (
+    "You are an assistant that extracts work experience and projects from a resume. "
+    "Extract ONLY:\n"
+    "- Experience: each job, internship, or research role, with company, title, location, start date, end date, and bullet-point details.\n"
+    "- Projects: each project, with project name, bullet-point descriptions, technologies, and an optional date range text.\n"
+    "Return a single JSON object with:\n"
+    "- 'experience': array of objects with keys 'company', 'title', 'location', 'start', 'end', 'details'.\n"
+    "- 'projects': array of objects with keys 'name', 'description', 'tech', 'dateRange'.\n"
+    "Ignore summary, education, skills, awards, and any other sections."
+)
 
-parse_experience = "You are an assistant tasked with extracting work experience from a resume. " \
-"Extract only the Experience section. " \
-"Return a valid JSON object with an 'experience' key containing an array of objects, " \
-"each with 'company', 'title', and 'details' keys."
+parse_skills = (
+    "You are an assistant that extracts programming languages and technologies from a resume. "
+    "Extract ONLY from the explicit Skills or Technical Skills section of the resume. "
+    "Do NOT infer or collect skills mentioned in experience bullets, project descriptions, or elsewhere.\n"
+    "Separate the items into two categories:\n"
+    "- Languages: programming languages only (e.g. Python, Java, JavaScript, SQL).\n"
+    "- Technologies: frameworks, tools, libraries, and platforms (e.g. React, FastAPI, Docker, Git, PostgreSQL).\n"
+    "Return a single JSON object with:\n"
+    "- 'languages': array of strings (may be empty but must be present).\n"
+    "- 'technologies': array of strings (may be empty but must be present).\n"
+    "Ignore summary, education, experience, projects, awards, and any other content."
+)
 
-parse_projects = "You are an assistant tasked with extracting projects from a resume. " \
-"Extract only the Projects section. " \
-"Return a valid JSON object with a 'projects' key containing an array of objects, " \
-"each with 'name', 'description'."
+parse_prompts = [parse_heading_education, parse_experience_projects, parse_skills]
 
-parse_prompts = [parse_summary, parse_skills, parse_experience, parse_projects]
+# JSON schema examples for the parse prompts. These are appended to the
+# instructions to force the model to emit a predictable shape.
+parse_schema_examples = {
+    "heading_education": {
+        "heading": {
+            "name": "Jane Doe",
+            "phone": "123-456-7890",
+            "email": "jane@example.com",
+            "location": "Ithaca, NY",
+            "linkedin": "https://www.linkedin.com/in/janedoe",
+            "github": "https://github.com/janedoe",
+        },
+        "education": [
+            {
+                "school": "Cornell University",
+                "location": "Ithaca, NY",
+                "degree": "B.S. in Computer Science",
+                "start": "Aug 2024",
+                "end": "May 2028",
+            }
+        ],
+    },
+    "experience_projects": {
+        "experience": [
+            {
+                "company": "American Red Cross",
+                "title": "Software Engineering Intern",
+                "location": "Buffalo, NY",
+                "start": "June 2025",
+                "end": "Aug 2025",
+                "details": [
+                    "Developed a REST API to archive 25,000 Jira issues",
+                    "Built a Flask web app to trigger archival jobs",
+                ],
+            }
+        ],
+        "projects": [
+            {
+                "name": "Resume Tailorer",
+                "description": [
+                    "Built a full-stack app for resume parsing and tailoring"
+                ],
+                "tech": ["Python", "FastAPI", "React", "PostgreSQL"],
+                "dateRange": "Nov 2025 -- Feb 2026",
+            }
+        ],
+    },
+    "skills": {
+        "languages": ["Python", "Java", "JavaScript", "SQL"],
+        "technologies": ["React", "FastAPI", "Docker", "Git"],
+    },
+}
 
 
-tailor_summary = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
-"Only focus on the Summary / Introduction section at the beginning of the text. Maintain a professional style, and aim to " \
-"mimic the tone displayed in this resume. " \
-"Analyze the job description (provided below) and suggest improvements to better align the summary with key requirements and keywords. " \
-"Return a valid JSON array of suggestion objects, each with 'original', 'updated', and 'explanation'." \
+tailor_summary = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Summary / Introduction section at the beginning of the text. Maintain a professional style, and aim to "
+    "mimic the tone displayed in this resume. "
+    "Analyze the job description (provided below) and suggest improvements to better align the summary with key requirements and keywords. "
+    "Return a valid JSON array of suggestion objects, each with 'original', 'updated', and 'explanation'."
+)
 
-tailor_skills = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
-"Only focus on the Skills / Technologies section. Each suggestion should target ONE individual skill. " \
-"For each suggestion, provide 'entryIdx' (the array index of the skill to modify, use 0 for first skill). " \
-"The 'original' field should be the single skill string currently at that index, or an empty string '' if adding a new skill. " \
-"The 'updated' field should be the new single skill string, or an empty string '' if removing the skill. " \
-"Three types of suggestions: (1) Replace: original=existing skill, updated=new skill, entryIdx=skill's current index. " \
-"(2) Remove: original=existing skill, updated='', entryIdx=skill's current index. " \
-"(3) Add: original='', updated=new skill to add, entryIdx can be any value (will be appended). " \
-"Only suggest skills that make sense - don't add non-existent skills. " \
-"Analyze the job description (provided below) to identify which skills to add, replace, or remove. " \
-"Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'." \
+tailor_languages = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Languages section (programming languages). Each suggestion should target ONE individual language. "
+    "For each suggestion, provide 'entryIdx' (the array index of the language to modify, use 0 for first). "
+    "The 'original' field should be the single language string currently at that index, or an empty string '' if adding a new one. "
+    "The 'updated' field should be the new single language string, or an empty string '' if removing. "
+    "Three types: (1) Replace: original=existing, updated=new, entryIdx=current index. "
+    "(2) Remove: original=existing, updated='', entryIdx=current index. "
+    "(3) Add: original='', updated=new language, entryIdx can be any value (will be appended). "
+    "Only suggest languages the person actually knows based on their resume context. "
+    "Analyze the job description (provided below) to identify which languages to add, replace, or remove. "
+    "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
+)
 
-tailor_experience = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
-"Only focus on the Experience section. For each experience entry, provide suggestions to more closely align the bullet points with " \
-"the requirements and keywords from the job description (provided below). Do not fabricate information, only enhance existing content " \
-"by emphasizing relevant achievements, technologies, or responsibilities that match the job description. " \
-"Return a valid JSON array of suggestion objects, each with 'entryIdx' corresponding to which experience entry " \
-"this applies to, 'bulletIdx' corresponding to which bullet point the suggestion applies to, 'original', " \
-"'updated', and 'explanation'." \
+tailor_technologies = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Technologies section (frameworks, tools, libraries, platforms). Each suggestion should target ONE individual technology. "
+    "For each suggestion, provide 'entryIdx' (the array index of the technology to modify, use 0 for first). "
+    "The 'original' field should be the single technology string currently at that index, or an empty string '' if adding a new one. "
+    "The 'updated' field should be the new single technology string, or an empty string '' if removing. "
+    "Three types: (1) Replace: original=existing, updated=new, entryIdx=current index. "
+    "(2) Remove: original=existing, updated='', entryIdx=current index. "
+    "(3) Add: original='', updated=new technology, entryIdx can be any value (will be appended). "
+    "Only suggest technologies the person actually knows based on their resume context. "
+    "Analyze the job description (provided below) to identify which technologies to add, replace, or remove. "
+    "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
+)
 
-tailor_projects = "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. " \
-"Only focus on the Projects section. For each project, provide suggestions to more closely align the project descriptions with " \
-"the requirements and keywords from the job description (provided below). Do not fabricate information, only enhance existing content " \
-"by emphasizing relevant technologies, methodologies, or outcomes that match the job description. " \
-"Return a valid JSON array of suggestion objects, each with 'entryIdx' corresponding to which project " \
-"this applies to, 'bulletIdx' corresponding to which bullet point the suggestion applies to, 'original', " \
-"'updated', and 'explanation'." \
+tailor_experience = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Experience section. For each experience entry, provide suggestions to more closely align the bullet points with "
+    "the requirements and keywords from the job description (provided below). Do not fabricate information, only enhance existing content "
+    "by emphasizing relevant achievements, technologies, or responsibilities that match the job description. "
+    "Return a valid JSON array of suggestion objects, each with 'entryIdx' corresponding to which experience entry "
+    "this applies to, 'bulletIdx' corresponding to which bullet point the suggestion applies to, 'original', "
+    "'updated', and 'explanation'."
+)
 
-tailor_prompts = [tailor_summary, tailor_skills, tailor_experience, tailor_projects]
+tailor_projects = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Projects section. For each project, provide suggestions to more closely align the project descriptions with "
+    "the requirements and keywords from the job description (provided below). Do not fabricate information, only enhance existing content "
+    "by emphasizing relevant technologies, methodologies, or outcomes that match the job description. "
+    "Return a valid JSON array of suggestion objects, each with 'entryIdx' corresponding to which project "
+    "this applies to, 'bulletIdx' corresponding to which bullet point the suggestion applies to, 'original', "
+    "'updated', and 'explanation'."
+)
+
+tailor_prompts = [tailor_summary, tailor_languages, tailor_technologies, tailor_experience, tailor_projects]
 
 tailor_schema_examples = {
     0: [
@@ -69,31 +161,41 @@ tailor_schema_examples = {
     ],
     1: [
         {
-            "section": "skills",
+            "section": "languages",
             "entryIdx": "1",
             "bulletIdx": None,
-            "original": "flask",
+            "original": "R",
             "updated": "",
-            "explanation": "Replaces flask since it is completely irrelevant."
+            "explanation": "Removes R since it is not relevant to this role."
         },
         {
-            "section": "skills",
-            "entryIdx": "2",
-            "bulletIdx": None,
-            "original": "docker",
-            "updated": "kubernetes",
-            "explanation": "Replaces Docker with Kubernetes to highlight container orchestration skills."
-        },
-        {
-            "section": "skills",
+            "section": "languages",
             "entryIdx": "5",
             "bulletIdx": None,
             "original": "",
-            "updated": "kubernetes",
-            "explanation": "Adds Kubernetes as a new skill to highlight container orchestration experience."
+            "updated": "Go",
+            "explanation": "Adds Go as a language since the job description mentions it, AND it is referenced in the resume."
         }
     ],
     2: [
+        {
+            "section": "technologies",
+            "entryIdx": "2",
+            "bulletIdx": None,
+            "original": "Docker",
+            "updated": "Kubernetes",
+            "explanation": "Replaces Docker with Kubernetes to highlight container orchestration skills."
+        },
+        {
+            "section": "technologies",
+            "entryIdx": "5",
+            "bulletIdx": None,
+            "original": "",
+            "updated": "AWS",
+            "explanation": "Adds AWS to highlight cloud experience mentioned in the job description."
+        }
+    ],
+    3: [
         {
             "section": "experience",
             "entryIdx": "0",
@@ -103,7 +205,7 @@ tailor_schema_examples = {
             "explanation": "Adds technical specificity and measurable impact."
         }
     ],
-    3: [
+    4: [
         {
             "section": "projects",
             "entryIdx": "0",
