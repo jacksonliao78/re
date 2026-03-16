@@ -1,10 +1,14 @@
 import os
+from pathlib import Path
 import subprocess
 import tempfile
+from typing import Dict
 
-from app.models import Resume
+from app.models import Resume, EducationEntry, Experience, Project
 
-TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "templates", "jakes_resume.tex")
+
+TEMPLATE_PATH = Path(__file__).parent / "templates" / "jakes_resume.tex"
+
 
 LATEX_SPECIAL_CHARS = {
     "&": r"\&",
@@ -16,17 +20,16 @@ LATEX_SPECIAL_CHARS = {
     "}": r"\}",
     "~": r"\textasciitilde{}",
     "^": r"\textasciicircum{}",
+    "\\": r"\textbackslash{}",
 }
 
 
-def escape_latex(text: str) -> str:
+def escape_latex(text: str | None) -> str:
     if not text:
         return ""
     result: list[str] = []
     for ch in text:
-        if ch == "\\":
-            result.append(r"\textbackslash{}")
-        elif ch in LATEX_SPECIAL_CHARS:
+        if ch in LATEX_SPECIAL_CHARS:
             result.append(LATEX_SPECIAL_CHARS[ch])
         else:
             result.append(ch)
@@ -34,114 +37,126 @@ def escape_latex(text: str) -> str:
 
 
 def _render_heading(resume: Resume) -> str:
-    h = resume.heading
-    if not h:
+    if not resume.heading:
         return ""
-    lines: list[str] = []
-    name = escape_latex(h.name or "Your Name")
-    lines.append(r"\begin{center}")
-    lines.append(r"  \textbf{\Huge \scshape %s} \\ \vspace{1pt}" % name)
 
-    contact_parts: list[str] = []
-    if h.phone:
-        contact_parts.append(escape_latex(h.phone))
-    if h.email:
-        safe_email = escape_latex(h.email)
-        contact_parts.append(r"\href{mailto:%s}{\underline{%s}}" % (h.email, safe_email))
-    if h.linkedin:
-        safe_li = escape_latex(h.linkedin)
-        contact_parts.append(r"\href{%s}{\underline{%s}}" % (h.linkedin, safe_li))
-    if h.github:
-        safe_gh = escape_latex(h.github)
-        contact_parts.append(r"\href{%s}{\underline{%s}}" % (h.github, safe_gh))
-    if h.location:
-        contact_parts.append(escape_latex(h.location))
+    name = escape_latex(resume.heading.name or "")
+    bits: list[str] = []
 
-    if contact_parts:
-        lines.append(r"  \small " + r" $|$ ".join(contact_parts))
+    if resume.heading.phone:
+        bits.append(escape_latex(resume.heading.phone))
+    if resume.heading.email:
+        bits.append(
+            r"\href{mailto:%s}{\underline{%s}}"
+            % (
+                escape_latex(resume.heading.email),
+                escape_latex(resume.heading.email),
+            )
+        )
+    if resume.heading.linkedin:
+        bits.append(
+            r"\href{%s}{\underline{%s}}"
+            % (
+                escape_latex(resume.heading.linkedin),
+                escape_latex(resume.heading.linkedin),
+            )
+        )
+    if resume.heading.github:
+        bits.append(
+            r"\href{%s}{\underline{%s}}"
+            % (
+                escape_latex(resume.heading.github),
+                escape_latex(resume.heading.github),
+            )
+        )
 
-    lines.append(r"\end{center}")
-    return "\n".join(lines) + "\n"
+    contact = " $|$ ".join(bits) if bits else ""
+    return (
+        r"\begin{center}" + "\n"
+        r"    \textbf{\Huge \scshape %s} \\ \vspace{1pt}" % name
+        + ("\n    \\small %s" % contact if contact else "")
+        + "\n\\end{center}\n"
+    )
 
 
-def _render_education_entry(edu) -> str:
-    school = escape_latex(edu.school or "")
-    location = escape_latex(edu.location or "")
-    degree = escape_latex(edu.degree or "")
-    dates = ""
-    if edu.start or edu.end:
-        start = escape_latex(edu.start or "")
-        end = escape_latex(edu.end or "")
-        dates = f"{start} -- {end}" if start and end else start or end
-    return r"  \resumeSubheading{%s}{%s}{%s}{%s}" % (school, location, degree, dates)
+def _render_education_entry(e: EducationEntry) -> str:
+    school = escape_latex(e.school or "")
+    location = escape_latex(e.location or "")
+    degree = escape_latex(e.degree or "")
+    date_range = escape_latex(
+        " - ".join([d for d in [e.start or "", e.end or ""] if d])
+    )
+    return (
+        r"\resumeSubheading{%s}{%s}{%s}{%s}"
+        % (school, location, degree, date_range)
+    )
 
 
 def _render_education(resume: Resume) -> str:
     if not resume.education:
         return ""
-    lines: list[str] = []
-    lines.append(r"\section{Education}")
-    lines.append(r"\resumeSubHeadingListStart")
+    lines = [r"\section{Education}", r"\resumeSubHeadingListStart"]
     for edu in resume.education:
         lines.append(_render_education_entry(edu))
     lines.append(r"\resumeSubHeadingListEnd")
     return "\n".join(lines) + "\n"
 
 
-def _render_experience_entry(exp) -> str:
-    lines: list[str] = []
-    company = escape_latex(exp.company or "")
-    title = escape_latex(exp.title or "")
-    location = escape_latex(exp.location or "")
-    dates = ""
-    if exp.start or exp.end:
-        start = escape_latex(exp.start or "")
-        end = escape_latex(exp.end or "")
-        dates = f"{start} -- {end}" if start and end else start or end
-    lines.append(r"  \resumeSubheading{%s}{%s}{%s}{%s}" % (company, dates, title, location))
-    if exp.details:
-        lines.append(r"    \resumeItemListStart")
-        for detail in exp.details:
-            lines.append(r"      \resumeItem{%s}" % escape_latex(detail))
-        lines.append(r"    \resumeItemListEnd")
-    return "\n".join(lines)
+def _render_experience_entry(e: Experience) -> str:
+    title = escape_latex(e.title or "")
+    company = escape_latex(e.company or "")
+    location = escape_latex(e.location or "")
+    date_range = escape_latex(
+        " - ".join([d for d in [e.start or "", e.end or ""] if d])
+    )
+    header = r"\resumeSubheading{%s}{%s}{%s}{%s}" % (
+        title or "",
+        date_range,
+        company or "",
+        location or "",
+    )
+    bullets: list[str] = []
+    if e.details:
+        bullets.append(r"\resumeItemListStart")
+        for detail in e.details:
+            bullets.append(r"\resumeItem{%s}" % escape_latex(detail))
+        bullets.append(r"\resumeItemListEnd")
+    return "\n".join([header] + bullets)
 
 
 def _render_experience(resume: Resume) -> str:
     if not resume.experience:
         return ""
-    lines: list[str] = []
-    lines.append(r"\section{Experience}")
-    lines.append(r"\resumeSubHeadingListStart")
+    lines = [r"\section{Experience}", r"\resumeSubHeadingListStart"]
     for exp in resume.experience:
         lines.append(_render_experience_entry(exp))
     lines.append(r"\resumeSubHeadingListEnd")
     return "\n".join(lines) + "\n"
 
 
-def _render_project_entry(proj) -> str:
-    lines: list[str] = []
-    name = escape_latex(proj.name or "")
-    tech_str = ""
-    if proj.tech:
-        tech_str = ", ".join(escape_latex(t) for t in proj.tech)
-        tech_str = r" $|$ \emph{%s}" % tech_str
-    date_range = escape_latex(proj.dateRange or "")
-    lines.append(r"  \resumeProjectHeading{\textbf{%s}%s}{%s}" % (name, tech_str, date_range))
-    if proj.description:
-        lines.append(r"    \resumeItemListStart")
-        for desc in proj.description:
-            lines.append(r"      \resumeItem{%s}" % escape_latex(desc))
-        lines.append(r"    \resumeItemListEnd")
-    return "\n".join(lines)
+def _render_project_entry(p: Project) -> str:
+    name = escape_latex(p.name or "")
+    tech_line = ""
+    if p.tech:
+        tech_line = r"\textbf{%s}" % escape_latex(", ".join(p.tech))
+    heading_left = name
+    if tech_line:
+        heading_left = r"\textbf{%s} $|$ \emph{%s}" % (name, tech_line)
+    date_range = escape_latex(p.dateRange or "")
+    header = r"\resumeProjectHeading{%s}{%s}" % (heading_left, date_range)
+    bullets: list[str] = []
+    if p.description:
+        bullets.append(r"\resumeItemListStart")
+        for desc in p.description:
+            bullets.append(r"\resumeItem{%s}" % escape_latex(desc))
+        bullets.append(r"\resumeItemListEnd")
+    return "\n".join([header] + bullets)
 
 
 def _render_projects(resume: Resume) -> str:
     if not resume.projects:
         return ""
-    lines: list[str] = []
-    lines.append(r"\section{Projects}")
-    lines.append(r"\resumeSubHeadingListStart")
+    lines = [r"\section{Projects}", r"\resumeSubHeadingListStart"]
     for proj in resume.projects:
         lines.append(_render_project_entry(proj))
     lines.append(r"\resumeSubHeadingListEnd")
@@ -166,7 +181,7 @@ def _render_skills(resume: Resume) -> str:
     return "\n".join(lines) + "\n"
 
 
-def resume_to_latex_sections(resume: Resume) -> dict[str, str]:
+def resume_to_latex_sections(resume: Resume) -> Dict[str, str]:
     return {
         "HEADING": _render_heading(resume),
         "EDUCATION": _render_education(resume),
@@ -177,41 +192,50 @@ def resume_to_latex_sections(resume: Resume) -> dict[str, str]:
 
 
 def build_latex_document(resume: Resume) -> str:
-    with open(TEMPLATE_PATH, "r") as f:
-        template = f.read()
+    template_text = TEMPLATE_PATH.read_text(encoding="utf-8")
     sections = resume_to_latex_sections(resume)
     for key, value in sections.items():
-        template = template.replace("{{%s}}" % key, value)
-    return template
+        template_text = template_text.replace(f"{{{{{key}}}}}", value)
+    return template_text
 
 
 def render_resume_pdf(resume: Resume) -> bytes:
+    """
+    Build a LaTeX document for the given resume and compile it to PDF.
+    Returns the PDF bytes. Raises RuntimeError on failure.
+    """
     latex_source = build_latex_document(resume)
-
     with tempfile.TemporaryDirectory() as tmpdir:
-        tex_path = os.path.join(tmpdir, "resume.tex")
-        with open(tex_path, "w") as f:
-            f.write(latex_source)
+        tex_path = Path(tmpdir) / "resume.tex"
+        tex_path.write_text(latex_source, encoding="utf-8")
 
-        result = subprocess.run(
-            ["pdflatex", "-interaction=nonstopmode", "resume.tex"],
-            cwd=tmpdir,
-            capture_output=True,
-            timeout=30,
-        )
+        # Run pdflatex; on failure, read the .log file for diagnostics.
+        try:
+            result = subprocess.run(
+                ["pdflatex", "-interaction=nonstopmode", tex_path.name],
+                cwd=tmpdir,
+            )
+        except Exception as exc:
+            raise RuntimeError(f"Failed to run pdflatex: {exc}") from exc
 
-        pdf_path = os.path.join(tmpdir, "resume.pdf")
-        if result.returncode != 0 or not os.path.exists(pdf_path):
-            log_path = os.path.join(tmpdir, "resume.log")
-            log_snippet = ""
-            if os.path.exists(log_path):
-                with open(log_path, "r", errors="replace") as lf:
-                    log_lines = lf.readlines()
-                    log_snippet = "".join(log_lines[-40:])
+        log_path = Path(tmpdir) / "resume.log"
+        log_snippet = ""
+        if log_path.exists():
+            try:
+                log_text = log_path.read_text(encoding="utf-8", errors="ignore")
+                log_snippet = "\n".join(log_text.splitlines()[-40:])
+            except Exception:
+                log_snippet = ""
+
+        if result.returncode != 0:
             raise RuntimeError(
                 f"pdflatex failed with exit code {result.returncode}. "
                 f"Last log lines:\n{log_snippet}"
             )
 
-        with open(pdf_path, "rb") as f:
-            return f.read()
+        pdf_path = Path(tmpdir) / "resume.pdf"
+        if not pdf_path.exists():
+            raise RuntimeError("LaTeX compilation did not produce resume.pdf")
+
+        return pdf_path.read_bytes()
+

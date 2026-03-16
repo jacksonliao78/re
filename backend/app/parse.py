@@ -42,18 +42,18 @@ def parse(file: bytes) -> Resume:
 
     page_text = page.extract_text()
 
-    # three consolidated prompts: heading+education, experience+projects, skills
-    keys = ["heading_education", "experience_projects", "skills"]
+    # three consolidated prompts: heading+education, experience+projects, summary+skills
+    keys = ["heading_education", "experience_projects", "summary_skills"]
 
+    
     parsed_outputs: dict[str, dict | None] = {}
 
     for key, prompt in zip(keys, parse_prompts):
-        schema_example = parse_schema_examples[key]
         output_instructions = (
             "IMPORTANT: Reply with valid JSON only and nothing else. "
             "Do NOT include any explanatory text, markdown, or backticks. "
             "The JSON must match the schema example below exactly (use the same keys):\n"
-            + json.dumps(schema_example, indent=2)
+            + json.dumps(parse_schema_examples[key], indent=2)
         )
 
         system_prompt = prompt + output_instructions
@@ -67,6 +67,7 @@ def parse(file: bytes) -> Resume:
         try:
             parsed = json.loads(raw)
         except Exception:
+            # first JSON
             m = re.search(r"(\{.*\}|\[.*\])", raw, re.S)
             if m:
                 try:
@@ -82,7 +83,7 @@ def parse(file: bytes) -> Resume:
 
     heading_education = parsed_outputs.get("heading_education") or {}
     experience_projects = parsed_outputs.get("experience_projects") or {}
-    skills_data = parsed_outputs.get("skills") or {}
+    summary_skills = parsed_outputs.get("summary_skills") or {}
 
     resume = Resume()
 
@@ -116,15 +117,15 @@ def parse(file: bytes) -> Resume:
         if not resume.education:
             resume.education = None
 
-    # languages and technologies from the skills section only
-    if isinstance(skills_data, dict):
-        languages = skills_data.get("languages")
+    # languages and technologies (do not parse summary for now)
+    if isinstance(summary_skills, dict):
+        languages = summary_skills.get("languages")
         if isinstance(languages, list) and languages:
             resume.languages = languages
         else:
             resume.languages = None
 
-        technologies = skills_data.get("technologies")
+        technologies = summary_skills.get("technologies")
         if isinstance(technologies, list) and technologies:
             resume.technologies = technologies
         else:
@@ -169,3 +170,10 @@ def parse(file: bytes) -> Resume:
     print(resume.to_string())
 
     return resume
+
+
+# pdf_path = Path(__file__).parent / "tests" / "resources" / "random.pdf"
+
+# with open(pdf_path, "rb") as f:
+#     pdf_bytes = f.read()
+# text = parse(pdf_bytes)

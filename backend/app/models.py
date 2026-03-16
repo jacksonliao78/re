@@ -8,14 +8,13 @@ class Job(BaseModel):
     position_level: Optional[str] = None
     description: str
     company: Optional[str] = None
-    location: Optional[str] = None
+    location: Optional[str] = None  # should be city and state ideally
     url: str
-
+    # whatever other attributes a job might have
 
 class SearchQuery(BaseModel):
     type: str
     level: list[str]
-
 
 class Heading(BaseModel):
     name: Optional[str] = None
@@ -25,14 +24,12 @@ class Heading(BaseModel):
     linkedin: Optional[str] = None
     github: Optional[str] = None
 
-
 class EducationEntry(BaseModel):
     school: Optional[str] = None
     location: Optional[str] = None
     degree: Optional[str] = None
     start: Optional[str] = None
     end: Optional[str] = None
-
 
 class Experience(BaseModel):
     company: Optional[str] = None
@@ -42,7 +39,6 @@ class Experience(BaseModel):
     end: Optional[str] = None
     details: list[str] = []
 
-
 class Project(BaseModel):
     name: Optional[str] = None
     description: list[str] = []
@@ -50,6 +46,13 @@ class Project(BaseModel):
     dateRange: Optional[str] = None
 
 
+# A resume may have some of the following
+# heading
+# a brief paragraph (which we ignore)
+# education
+# experience
+# projects
+# skills
 class Resume(BaseModel):
     heading: Optional[Heading] = None
     summary: Optional[str] = None
@@ -112,6 +115,7 @@ class Resume(BaseModel):
         if self.experience:
             parts.append("\nExperience:")
             for exp in self.experience:
+                # Build experience header
                 exp_parts: list[str] = []
                 if exp.title:
                     exp_parts.append(exp.title)
@@ -129,6 +133,7 @@ class Resume(BaseModel):
                 if exp_parts:
                     parts.append(f"- {' '.join(exp_parts)}")
 
+                # Add details
                 for detail in exp.details:
                     text = detail.strip()
                     if text:
@@ -137,6 +142,7 @@ class Resume(BaseModel):
         if self.projects:
             parts.append("\nProjects:")
             for proj in self.projects:
+                # Project name/header
                 header_bits: list[str] = []
                 if proj.name:
                     header_bits.append(proj.name)
@@ -144,6 +150,7 @@ class Resume(BaseModel):
                     header_bits.append(f"({proj.dateRange})")
                 if header_bits:
                     parts.append(f"- {' '.join(header_bits)}")
+                # Add description bullets
                 for desc in proj.description:
                     text = desc.strip()
                     if text:
@@ -177,7 +184,6 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
-
     class Config:
         from_attributes = True
 

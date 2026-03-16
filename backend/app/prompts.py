@@ -21,12 +21,10 @@ parse_experience_projects = (
     "Ignore summary, education, skills, awards, and any other sections."
 )
 
-parse_skills = (
+parse_summary_skills = (
     "You are an assistant that extracts programming languages and technologies from a resume. "
-    "Extract ONLY from the explicit Skills or Technical Skills section of the resume. "
-    "Do NOT infer or collect skills mentioned in experience bullets, project descriptions, or elsewhere.\n"
-    "Separate the items into two categories:\n"
-    "- Languages: programming languages only (e.g. Python, Java, JavaScript, SQL).\n"
+    "Extract ONLY:\n"
+    "- Languages: programming languages (e.g. Python, Java, JavaScript, SQL, HTML, CSS, R, OCaml).\n"
     "- Technologies: frameworks, tools, libraries, and platforms (e.g. React, FastAPI, Docker, Git, PostgreSQL).\n"
     "Return a single JSON object with:\n"
     "- 'languages': array of strings (may be empty but must be present).\n"
@@ -34,7 +32,7 @@ parse_skills = (
     "Ignore summary, education, experience, projects, awards, and any other content."
 )
 
-parse_prompts = [parse_heading_education, parse_experience_projects, parse_skills]
+parse_prompts = [parse_heading_education, parse_experience_projects, parse_summary_skills]
 
 # JSON schema examples for the parse prompts. These are appended to the
 # instructions to force the model to emit a predictable shape.
@@ -52,9 +50,9 @@ parse_schema_examples = {
             {
                 "school": "Cornell University",
                 "location": "Ithaca, NY",
-                "degree": "B.S. in Computer Science",
-                "start": "Aug 2024",
-                "end": "May 2028",
+                "degree": "B.S. in Animal Science",
+                "start": "Aug 2022",
+                "end": "May 2026",
             }
         ],
     },
@@ -83,7 +81,7 @@ parse_schema_examples = {
             }
         ],
     },
-    "skills": {
+    "summary_skills": {
         "languages": ["Python", "Java", "JavaScript", "SQL"],
         "technologies": ["React", "FastAPI", "Docker", "Git"],
     },
@@ -126,6 +124,20 @@ tailor_technologies = (
     "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
 )
 
+tailor_technologies = (
+    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
+    "Only focus on the Technologies section (frameworks, tools, libraries, platforms). Each suggestion should target ONE individual technology. "
+    "For each suggestion, provide 'entryIdx' (the array index of the technology to modify, use 0 for first). "
+    "The 'original' field should be the single technology string currently at that index, or an empty string '' if adding a new one. "
+    "The 'updated' field should be the new single technology string, or an empty string '' if removing. "
+    "Three types: (1) Replace: original=existing, updated=new, entryIdx=current index. "
+    "(2) Remove: original=existing, updated='', entryIdx=current index. "
+    "(3) Add: original='', updated=new technology, entryIdx can be any value (will be appended). "
+    "Only suggest technologies the person actually knows based on their resume context. "
+    "Analyze the job description (provided below) to identify which technologies to add, replace, or remove. "
+    "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
+)
+
 tailor_experience = (
     "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
     "Only focus on the Experience section. For each experience entry, provide suggestions to more closely align the bullet points with "
@@ -136,18 +148,10 @@ tailor_experience = (
     "'updated', and 'explanation'."
 )
 
-tailor_projects = (
-    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
-    "Only focus on the Projects section. For each project, provide suggestions to more closely align the project descriptions with "
-    "the requirements and keywords from the job description (provided below). Do not fabricate information, only enhance existing content "
-    "by emphasizing relevant technologies, methodologies, or outcomes that match the job description. "
-    "Return a valid JSON array of suggestion objects, each with 'entryIdx' corresponding to which project "
-    "this applies to, 'bulletIdx' corresponding to which bullet point the suggestion applies to, 'original', "
-    "'updated', and 'explanation'."
-)
+tailor_prompts = [tailor_summary, tailor_languages, tailor_technologies, tailor_experience]
 
-tailor_prompts = [tailor_summary, tailor_languages, tailor_technologies, tailor_experience, tailor_projects]
-
+# JSON schema examples for the tailor prompts. These are appended to the
+# instructions to force the model to emit a predictable shape.
 tailor_schema_examples = {
     0: [
         {
@@ -174,7 +178,7 @@ tailor_schema_examples = {
             "bulletIdx": None,
             "original": "",
             "updated": "Go",
-            "explanation": "Adds Go as a language since the job description mentions it, AND it is referenced in the resume."
+            "explanation": "Adds Go as a language since the job description mentions it."
         }
     ],
     2: [
