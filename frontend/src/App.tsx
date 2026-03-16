@@ -5,7 +5,7 @@ import JobSelector from "./components/JobSelector";
 import JobList from "./components/JobList";
 import PasteJobDescription from "./components/PasteJobDescription";
 import SuggestionList from "./components/SuggestionList";
-import ResumeEditor from "./components/ResumeEditor";
+import ResumeViewer from "./components/ResumeViewer";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import { useAuth } from "./contexts/AuthContext";
@@ -143,7 +143,7 @@ function App() {
         <section className="content-section">
           <div className="editor-pane">
             {resume ? (
-              <ResumeEditor resume={resume} editable={false} />
+              <ResumeViewer resume={resume} />
             ) : (
               <div className="editor-placeholder">
                 Upload a resume to see it here

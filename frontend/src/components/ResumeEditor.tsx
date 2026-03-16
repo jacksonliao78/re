@@ -1,52 +1,22 @@
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { useEffect } from 'react';
-import type { Resume } from '../types';
-import { resumeToTipTap } from '../utils/editResume';
 import '../App.css';
 
 interface ResumeEditorProps {
-  resume: Resume;
-  editable?: boolean;
-  timestamp?: Date | string | number;
   className?: string;
 }
 
-export default function ResumeEditor({ resume, editable = false, timestamp, className = '' }: ResumeEditorProps) {
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: resumeToTipTap(resume),
-    editable,
-    editorProps: {
-      attributes: {
-        class: 'resume-editor-content',
-      },
-    },
-  });
-
-  // update editor content when resume changes
-  useEffect(() => {
-    if (editor && resume) {
-      const content = resumeToTipTap(resume);
-      editor.commands.setContent(content);
-    }
-  }, [editor, resume]);
-
-  if (!editor) {
-    return <div className="resume-editor-loading">Loading editor...</div>;
-  }
-
+export default function ResumeEditor({ className = '' }: ResumeEditorProps) {
+  // PDF rendering is driven by the <object> tag src, which points to the backend
+  // /resume/render-pdf endpoint. We POST the resume JSON and stream back a blob
+  // URL from a small helper in the parent component; for now this component just
+  // serves as a placeholder container. The actual PDF viewer is implemented in
+  // a dedicated ResumeViewer component.
   return (
     <div className={`resume-editor ${className}`}>
-      {timestamp && (
-        <div className="resume-editor-timestamp">
-          {timestamp instanceof Date 
-            ? timestamp.toLocaleString() 
-            : new Date(timestamp).toLocaleString()}
-        </div>
-      )}
       <div className="resume-editor-wrapper">
-        <EditorContent editor={editor} />
+        {/* The actual PDF viewer is rendered by ResumeViewer in App.tsx */}
+        <div className="editor-placeholder">
+          Resume will be rendered as PDF in the viewer.
+        </div>
       </div>
     </div>
   );
