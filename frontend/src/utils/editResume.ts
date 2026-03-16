@@ -60,11 +60,8 @@ export function applySuggestion( resume: Resume, s: Suggestion ): Resume {
 // makes sure a suggestion can actually be applied
 export function validSuggestion( resume: Resume, s: Suggestion ): boolean {
     switch( s.section ) {
-<<<<<<< HEAD
-=======
         case "summary":
             return typeof resume.summary === "string";
->>>>>>> a61be2f0a46149ddfd462f4ba8a8760189c8e840
         case "languages":
         case "technologies": {
             const field = s.section === "languages" ? "languages" : "technologies";

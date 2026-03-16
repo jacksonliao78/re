@@ -52,10 +52,7 @@ export interface Project {
 
 export interface Resume {
   heading?: Heading | null;
-<<<<<<< HEAD
-=======
   // summary intentionally omitted from parsing for now
->>>>>>> a61be2f0a46149ddfd462f4ba8a8760189c8e840
   summary?: string | null;
   languages?: string[] | null;
   technologies?: string[] | null;
@@ -63,7 +60,3 @@ export interface Resume {
   experience?: Experience[] | null;
   projects?: Project[] | null;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> a61be2f0a46149ddfd462f4ba8a8760189c8e840
