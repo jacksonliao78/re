@@ -1,9 +1,11 @@
+from io import BytesIO
 from fastapi import APIRouter
 from fastapi import UploadFile
 from fastapi import File
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from app.parse import parse
 from app.tailor import tailor_resume
+from app.latex_resume import render_resume_pdf
 from app.models import Job, Resume
 
 router = APIRouter( prefix="/resume", tags=["Resume"] )
@@ -41,8 +43,21 @@ async def tailorResume( resume: Resume, job: Job ):
         content=[s.model_dump() for s in suggestions]
     )
 
+@router.post('/render-pdf')
+async def renderResumePdf(resume: Resume):
+    try:
+        pdf_bytes = render_resume_pdf(resume)
+    except RuntimeError as e:
+        return JSONResponse(
+            status_code=500,
+            content={"message": f"Failed to render resume PDF: {e}"},
+        )
+    return StreamingResponse(
+        BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": "inline; filename=resume.pdf"},
+    )
+
 @router.post('/finish')
 def finishTailoring():
-
-    #put job in ignored
     return

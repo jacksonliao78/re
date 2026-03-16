@@ -57,7 +57,7 @@ export default function SuggestionCard( { suggestion, resume, onApply, onReject,
 
     const sectionLabel = suggestion.section.charAt(0).toUpperCase() + suggestion.section.slice(1);
     const isSkillAddition =
-        suggestion.section === "skills" &&
+        (suggestion.section === "languages" || suggestion.section === "technologies") &&
         (suggestion.original ?? "").trim() === "" &&
         (suggestion.updated ?? "").trim() !== "";
     const contextInfo = suggestion.entryIdx !== undefined 
