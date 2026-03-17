@@ -52,8 +52,6 @@ export interface Project {
 
 export interface Resume {
   heading?: Heading | null;
-  // summary intentionally omitted from parsing for now
-  summary?: string | null;
   languages?: string[] | null;
   technologies?: string[] | null;
   education?: EducationEntry[] | null;

@@ -14,11 +14,6 @@ def test_empty():
     #or should it return an error 
     ...
 
-def test_no_summary():
-    """
-    A resume with no summary should return a Reumse object that indicates so
-    """
-
 def test_no_experience():
     """
     A resume with no experience should return a Reumse object that indicates so

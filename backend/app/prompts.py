@@ -88,14 +88,6 @@ parse_schema_examples = {
 }
 
 
-tailor_summary = (
-    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
-    "Only focus on the Summary / Introduction section at the beginning of the text. Maintain a professional style, and aim to "
-    "mimic the tone displayed in this resume. "
-    "Analyze the job description (provided below) and suggest improvements to better align the summary with key requirements and keywords. "
-    "Return a valid JSON array of suggestion objects, each with 'original', 'updated', and 'explanation'."
-)
-
 tailor_languages = (
     "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
     "Only focus on the Languages section (programming languages). Each suggestion should target ONE individual language. "
@@ -124,20 +116,6 @@ tailor_technologies = (
     "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
 )
 
-tailor_technologies = (
-    "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
-    "Only focus on the Technologies section (frameworks, tools, libraries, platforms). Each suggestion should target ONE individual technology. "
-    "For each suggestion, provide 'entryIdx' (the array index of the technology to modify, use 0 for first). "
-    "The 'original' field should be the single technology string currently at that index, or an empty string '' if adding a new one. "
-    "The 'updated' field should be the new single technology string, or an empty string '' if removing. "
-    "Three types: (1) Replace: original=existing, updated=new, entryIdx=current index. "
-    "(2) Remove: original=existing, updated='', entryIdx=current index. "
-    "(3) Add: original='', updated=new technology, entryIdx can be any value (will be appended). "
-    "Only suggest technologies the person actually knows based on their resume context. "
-    "Analyze the job description (provided below) to identify which technologies to add, replace, or remove. "
-    "Return a valid JSON array of suggestion objects, each with 'entryIdx', 'original', 'updated', and 'explanation'."
-)
-
 tailor_experience = (
     "You are an assistant tasked with providing a list of suggestions for a resume based on a job description. "
     "Only focus on the Experience section. For each experience entry, provide suggestions to more closely align the bullet points with "
@@ -148,22 +126,12 @@ tailor_experience = (
     "'updated', and 'explanation'."
 )
 
-tailor_prompts = [tailor_summary, tailor_languages, tailor_technologies, tailor_experience]
+tailor_prompts = [tailor_languages, tailor_technologies, tailor_experience]
 
 # JSON schema examples for the tailor prompts. These are appended to the
 # instructions to force the model to emit a predictable shape.
 tailor_schema_examples = {
     0: [
-        {
-            "section": "summary",
-            "entryIdx": None,
-            "bulletIdx": None,
-            "original": "Backend developer with experience using Flask",
-            "updated": "Fullstack developer specializing in backend systems and APIs",
-            "explanation": "Broadens scope and emphasizes API-focused work."
-        }
-    ],
-    1: [
         {
             "section": "languages",
             "entryIdx": "1",
@@ -181,7 +149,7 @@ tailor_schema_examples = {
             "explanation": "Adds Go as a language since the job description mentions it."
         }
     ],
-    2: [
+    1: [
         {
             "section": "technologies",
             "entryIdx": "2",
@@ -199,7 +167,7 @@ tailor_schema_examples = {
             "explanation": "Adds AWS to highlight cloud experience mentioned in the job description."
         }
     ],
-    3: [
+    2: [
         {
             "section": "experience",
             "entryIdx": "0",
@@ -207,16 +175,6 @@ tailor_schema_examples = {
             "original": "Built internal APIs.",
             "updated": "Designed and implemented scalable REST APIs using FastAPI, improving latency by 25%.",
             "explanation": "Adds technical specificity and measurable impact."
-        }
-    ],
-    4: [
-        {
-            "section": "projects",
-            "entryIdx": "0",
-            "bulletIdx": "1",
-            "original": "Designed a search engine",
-            "updated": "Implemented a search engine using an inverted index and Elasticsearch for full-text search",
-            "explanation": "Clarifies architecture and technologies used."
         }
     ]
 }

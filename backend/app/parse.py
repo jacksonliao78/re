@@ -117,7 +117,7 @@ def parse(file: bytes) -> Resume:
         if not resume.education:
             resume.education = None
 
-    # languages and technologies (do not parse summary for now)
+    # languages and technologies
     if isinstance(summary_skills, dict):
         languages = summary_skills.get("languages")
         if isinstance(languages, list) and languages:

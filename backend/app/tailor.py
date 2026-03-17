@@ -27,7 +27,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
     # temp 0 to encourage deterministic output.
     model = ChatGoogleGenerativeAI( model="gemini-2.5-flash", retries=2, api_key=api_key, temperature=0 ) 
 
-    keys = [ "summary", "languages", "technologies", "experience", "projects" ]
+    keys = [ "languages", "technologies", "experience" ]
 
     parsed_outputs = {}
 

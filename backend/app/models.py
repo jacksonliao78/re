@@ -48,14 +48,12 @@ class Project(BaseModel):
 
 # A resume may have some of the following
 # heading
-# a brief paragraph (which we ignore)
 # education
 # experience
 # projects
 # skills
 class Resume(BaseModel):
     heading: Optional[Heading] = None
-    summary: Optional[str] = None
     languages: Optional[list[str]] = None
     technologies: Optional[list[str]] = None
     education: Optional[list[EducationEntry]] = None
@@ -79,9 +77,6 @@ class Resume(BaseModel):
                 heading_line = f"{heading_line} – " + " | ".join(contact_bits)
             if heading_line.strip():
                 parts.append(heading_line.strip())
-
-        if self.summary:
-            parts.append(self.summary.strip())
 
         if self.languages:
             parts.append("\nLanguages:")
