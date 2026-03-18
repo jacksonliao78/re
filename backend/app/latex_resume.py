@@ -209,29 +209,12 @@ def render_resume_pdf(resume: Resume) -> bytes:
         tex_path = Path(tmpdir) / "resume.tex"
         tex_path.write_text(latex_source, encoding="utf-8")
 
-        # Run pdflatex; on failure, read the .log file for diagnostics.
+        cmd = ["pdflatex", "-interaction=nonstopmode", tex_path.name]
         try:
-            result = subprocess.run(
-                ["pdflatex", "-interaction=nonstopmode", tex_path.name],
-                cwd=tmpdir,
-            )
+            for _ in range(2):
+                result = subprocess.run(cmd, cwd=tmpdir)
         except Exception as exc:
             raise RuntimeError(f"Failed to run pdflatex: {exc}") from exc
-
-        log_path = Path(tmpdir) / "resume.log"
-        log_snippet = ""
-        if log_path.exists():
-            try:
-                log_text = log_path.read_text(encoding="utf-8", errors="ignore")
-                log_snippet = "\n".join(log_text.splitlines()[-40:])
-            except Exception:
-                log_snippet = ""
-
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"pdflatex failed with exit code {result.returncode}. "
-                f"Last log lines:\n{log_snippet}"
-            )
 
         pdf_path = Path(tmpdir) / "resume.pdf"
         if not pdf_path.exists():

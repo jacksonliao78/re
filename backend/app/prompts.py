@@ -22,7 +22,8 @@ parse_experience_projects = (
 )
 
 parse_summary_skills = (
-    "You are an assistant that extracts programming languages and technologies from a resume. "
+    "You are an assistant that extracts programming languages and technologies from a resume." \
+    "Specifically, ONLY look in the skills section of the resume, not from projects/experience."
     "Extract ONLY:\n"
     "- Languages: programming languages (e.g. Python, Java, JavaScript, SQL, HTML, CSS, R, OCaml).\n"
     "- Technologies: frameworks, tools, libraries, and platforms (e.g. React, FastAPI, Docker, Git, PostgreSQL).\n"
