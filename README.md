@@ -1,182 +1,73 @@
-## get-a-job – Local Setup
+## get-a-job
 
-This repo is a small full‑stack app that:
+A full-stack app that parses PDF resumes, scrapes job postings, and uses an LLM to generate tailored resume suggestions.
 
-- Uploads and parses a PDF resume
-- Scrapes or pastes job descriptions
-- Uses an LLM to generate tailored resume suggestions
-- (Optionally) lets users register / log in with a PostgreSQL backend
+### Pages
 
-Below is how to run everything locally.
+- **Resume** (`/`) — Upload a PDF resume and preview the rendered output.
+- **Tailor** (`/tailor`) — Browse scraped jobs or paste a description, then generate and apply AI suggestions side-by-side with a live PDF preview.
 
----
-
-## 1. Prerequisites
-
-- **Git**
-- **Python**: 3.11.x or 3.10.x recommended  
-  - Python 3.14 works but some dependencies (Pydantic V1 / LangChain) print compatibility warnings.
-- **Node.js + npm**: recent LTS (e.g. 20.x)
-- **PostgreSQL**: running locally (e.g. via Homebrew on macOS)
-- A **Google Generative AI API key** (for resume parsing / tailoring)
+Accounts are optional. Logging in unlocks a saved default resume and ignored-job filtering across sessions.
 
 ---
 
-## 2. Clone the repo
+### Prerequisites
 
-```bash
-git clone <this-repo-url>
-cd re
-```
+- **Python** 3.10+ and **Node.js** 20+
+- **PostgreSQL** running locally
+- A **Google Generative AI API key**
 
 ---
 
-## 3. Backend setup (FastAPI + PostgreSQL)
-
-From the project root:
+### Backend setup
 
 ```bash
 cd backend
-python -m venv venv           # create virtualenv (once)
-source venv/bin/activate      # macOS / Linux
-
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3.1 PostgreSQL database
-
-1. Make sure postgres is running (on macOS with Homebrew, for example):
-
-   ```bash
-   brew services start postgresql@16   # or your installed version
-   ```
-
-2. Create a database (name is up to you, example: `resumedb`):
-
-   ```bash
-   createdb resumedb
-   ```
-
-3. Create a `.env` file in `backend/` based on the example:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Then edit `backend/.env` and set at least:
-
-   ```env
-   DATABASE_URL=postgresql://<your-db-user>@localhost:5432/resumedb
-   JWT_SECRET_KEY=replace-with-a-long-random-string
-   GOOGLE_API_KEY=your-google-generative-ai-key
-   ```
-
-   - `<your-db-user>` is whatever user can connect locally (often your macOS username).
-
-4. Initialize tables (run again after pulling changes that add new tables/columns):
-
-   ```bash
-   cd backend
-   source venv/bin/activate
-   python -m app.init_db
-   ```
-
-   You should see log output indicating tables were created (e.g. `users`, `ignored_jobs`).
-
-For more detail / troubleshooting, see `backend/SETUP_DATABASE.md`.
-
-### 3.2 Run the backend
-
-From `backend/` with the venv activated:
+Create the database and configure environment variables:
 
 ```bash
+createdb resumedb
+cp .env.example .env
+```
+
+Edit `backend/.env`:
+
+```env
+DATABASE_URL=postgresql://<your-db-user>@localhost:5432/resumedb
+JWT_SECRET_KEY=replace-with-a-long-random-string
+GOOGLE_API_KEY=your-google-generative-ai-key
+```
+
+Initialize tables and start the server:
+
+```bash
+python -m app.init_db
 uvicorn app.main:app --reload
 ```
 
-The API will be available at:
-
-- `http://localhost:8000/` – basic health endpoint
-- `http://localhost:8000/docs` – interactive Swagger docs
-
-Key routes:
-
-- `POST /resume/upload` – upload a PDF (multipart/form-data) and get parsed resume JSON
-- `POST /resume/tailor` – send `{ resume, job }` JSON, receive an array of suggestions
-- `POST /jobs/search` – scrape jobs given a search query
-- `POST /auth/register`, `/auth/login`, `GET /auth/me` – auth (JWT)
-- `GET /auth/me/default-resume`, `PUT /auth/me/default-resume` – stored default resume
-- `GET /auth/me/ignored-jobs`, `POST /auth/me/ignored-jobs` – ignored job IDs (filtered from scrape when logged in)
+API docs at `http://localhost:8000/docs`.
 
 ---
 
-## 4. Frontend setup (Vite + React)
-
-Open a new terminal window/tab, from the project root:
+### Frontend setup
 
 ```bash
 cd frontend
-npm install          # once
+npm install
 npm run dev
 ```
 
-By default, the app will be available at:
-
-- `http://localhost:5173/`
-
-The Vite dev server is configured to proxy API calls to the backend:
-
-- `/jobs`  → `http://localhost:8000/jobs`
-- `/resume` → `http://localhost:8000/resume`
-- `/auth`  → `http://localhost:8000/auth`
-
-Make sure the backend is running first so the proxy can connect.
+Runs at `http://localhost:5173/`. The Vite dev server proxies `/jobs`, `/resume`, and `/auth` to the backend on port 8000.
 
 ---
 
-## 5. Using the app
+### Common issues
 
-You can **use the app without an account**. Log in is optional and unlocks saved default resume and ignored-job filtering.
-
-1. **Upload a resume**
-   - At the top, drag & drop a PDF or click to browse.
-   - After upload, the parsed resume appears in the read‑only editor on the left.
-   - **Save as default resume** (logged-in only): Click **“Save as default resume”** to store this as your baseline. It loads on next login and is used when you **rechoose** a job (resetting the working copy to this default).
-
-2. **Select or paste a job**
-   - Use **job selector + “Scrape jobs”** to fetch job postings. When logged in, jobs you’ve **ignored** or **completed** are filtered out, and the list **reloads automatically** after you ignore a job so it disappears.
-   - Or **paste a job description** and click “Use this description” to create a synthetic job for tailoring.
-   - On a job card, **Select** then **Tailor** to open suggestions, or **Ignore** to hide it from future scrapes (when logged in, the list refreshes after ignore).
-
-3. **Suggestions**
-   - With a resume and job selected, click **“Generate Suggestions”**.
-   - **Apply** or **Reject** suggestions. Click **Complete** when done: the job is added to your ignored list (if logged in), the suggestions panel clears, and the updated resume stays until you select a new job (then it resets to your default/original).
-
-4. **Log in / Log out**
-   - **Log in** in the header opens the login screen; you can **Continue without account** to return to the app.
-   - **Log out** signs you out and returns you to the login screen.
-
----
-
-## 6. Common issues
-
-- **`ModuleNotFoundError: No module named 'app'` when running uvicorn**  
-  Make sure you run `uvicorn` from the `backend/` directory:
-
-  ```bash
-  cd backend
-  source venv/bin/activate
-  uvicorn app.main:app --reload
-  ```
-
-- **JWT library syntax error (`jose.py`, missing parentheses in `print`)**  
-  This means the wrong `jose` package is installed. Fix by:
-
-  ```bash
-  pip uninstall -y jose
-  pip install "python-jose[cryptography]"
-  ```
-
-- **LLM / parsing / tailoring fails with GOOGLE_API_KEY error**  
-  Double‑check that `GOOGLE_API_KEY` is set in `backend/.env` and that `python-dotenv` is installed (it’s in `requirements.txt`).
-
-
+- **`ModuleNotFoundError: No module named 'app'`** — Run `uvicorn` from inside `backend/`.
+- **JWT `jose.py` syntax error** — Wrong package installed. Run `pip uninstall -y jose && pip install "python-jose[cryptography]"`.
+- **GOOGLE_API_KEY error** — Check that the key is set in `backend/.env`.
