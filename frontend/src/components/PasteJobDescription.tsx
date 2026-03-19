@@ -22,7 +22,7 @@ export default function PasteJobDescription({ onTailor }: Props) {
   }
 
   return (
-    <div className="paste-job" style={{ marginTop: "1.5rem" }}>
+    <div className="paste-job">
       <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>
         Or paste a job description:
       </label>

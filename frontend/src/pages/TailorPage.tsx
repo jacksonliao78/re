@@ -48,6 +48,8 @@ export default function TailorPage() {
             token={token}
             refreshTrigger={refreshJobsKey}
           />
+        </div>
+        <div className="job-paste-section">
           <PasteJobDescription onTailor={handleTailor} />
         </div>
       </section>

@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useEffect, type ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { getDefaultResume } from "../api/auth";
-import { saveResume, loadResume, clearResume } from "../utils/resumeStorage";
+import { saveResume, clearResume } from "../utils/resumeStorage";
 import type { Resume } from "../types";
 
 interface ResumeContextType {

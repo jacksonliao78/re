@@ -120,7 +120,7 @@ export default function ResumeUploader({ resume: propResume, originalResume, onR
           {loading ? "Uploading…" : "Upload"}
         </button>
         {resume && (
-          <button onClick={handleClearResume} className="clear-btn" style={{ marginLeft: "0.5rem" }}>
+          <button onClick={handleClearResume} className="clear-btn">
             Clear Resume
           </button>
         )}
@@ -136,7 +136,6 @@ export default function ResumeUploader({ resume: propResume, originalResume, onR
               }
             }}
             disabled={savingDefault}
-            style={{ marginLeft: "0.5rem" }}
           >
             {savingDefault ? "Saving…" : "Save as default resume"}
           </button>

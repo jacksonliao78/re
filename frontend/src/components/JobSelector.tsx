@@ -15,7 +15,7 @@ const JOB_TYPES = ["Software Engineer", "Data Scientist", "Product Manager", "Bu
 export default function JobSelector( { onChange }: Props ) {
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0]);
   const [isIntern, setIsIntern] = useState<boolean>(false);
-  const [isFullTime, setIsFullTime] = useState<boolean>(true);
+  const [isFullTime, setIsFullTime] = useState<boolean>(false);
 
   function notify(payload: SelectorPayload) {
     onChange?.(payload);

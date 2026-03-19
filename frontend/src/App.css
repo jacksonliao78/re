@@ -9,7 +9,6 @@
 
 .app-root {
   width: 100%;
-  max-width: 1200px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -21,7 +20,7 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 2.5rem;
   background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
   border-bottom: 1px solid var(--border-muted);
   box-shadow: var(--shadow-soft);
@@ -85,9 +84,10 @@
 }
 
 .resume-page-upload {
-  flex: 0 0 380px;
-  padding: 1.25rem;
+  flex: 0 0 440px;
+  padding: 1.25rem 1.5rem 1.25rem 2.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
   border-right: 1px solid var(--border-subtle);
 }
 
@@ -105,7 +105,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .tailor-content {
@@ -113,9 +113,8 @@
   grid-template-columns: 1fr 400px;
   gap: 1rem;
   padding: 1rem;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+  height: 70vh;
+  flex-shrink: 0;
 }
 
 .tailor-viewer {
@@ -177,6 +176,13 @@
   box-shadow: var(--shadow-card);
 }
 
+.job-paste-section {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem 0.75rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 /* ── Job selector ── */
 .job-selector {
   display: flex;
@@ -231,7 +237,8 @@
 /* ── Controls / buttons ── */
 .controls {
   display: flex;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.75rem;
 }
