@@ -3,9 +3,11 @@ parse_heading_education = (
     "You are an assistant that extracts heading and education information from a resume. "
     "Extract ONLY:\n"
     "- Heading: full name, phone, email, overall location (city and state or country), LinkedIn URL, GitHub URL.\n"
-    "- Education: each degree program, with school name, school location, degree text, start date, and end date.\n"
+    "- Education: ONLY entries listed under the 'Education' section/heading of the resume. "
+    "Do NOT infer education from work experience, projects, or other sections — even if they mention a school name. "
+    "For each entry, extract school name, school location, degree text, start date, and end date.\n"
     "Return a single JSON object with:\n"
-    "- 'heading': object with keys 'name', 'phone', 'email', 'location', 'linkedin', 'github' (use null for missing values).\n"
+    "- 'heading': object with keys 'name', 'phone', 'email', 'location', 'linkedin', 'github' (use JSON null for missing values — NOT other placeholder strings).\n"
     "- 'education': array of objects with keys 'school', 'location', 'degree', 'start', 'end'.\n"
     "Ignore work experience, projects, skills, awards, and any other sections."
 )
@@ -45,7 +47,7 @@ parse_schema_examples = {
             "email": "jane@example.com",
             "location": "Ithaca, NY",
             "linkedin": "https://www.linkedin.com/in/janedoe",
-            "github": "https://github.com/janedoe",
+            "github": None,
         },
         "education": [
             {

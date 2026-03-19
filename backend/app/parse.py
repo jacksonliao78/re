@@ -11,8 +11,8 @@ from app.models import (
     Project,
 )
 from app.prompts import parse_prompts, parse_schema_examples
+from app.llm import get_model, parse_json, sanitize_nulls
 from pypdf import PdfReader
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 try:
@@ -27,31 +27,20 @@ def parse(file: bytes) -> Resume:
     reader = PdfReader(stream)
     page = reader.pages[0]
 
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "GOOGLE_API_KEY environment variable is not set.\n"
-            "Set it locally with: export GOOGLE_API_KEY=your_key\n"
-            "Or create a .env file with: GOOGLE_API_KEY=your_key"
-        )
-
-    # temp 0 to encourage deterministic output.
-    model = ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", retries=2, api_key=api_key, temperature=0
-    )
+    model = get_model()
 
     page_text = page.extract_text()
 
-    # three consolidated prompts: heading+education, experience+projects, summary+skills
     keys = ["heading_education", "experience_projects", "summary_skills"]
 
-    
     parsed_outputs: dict[str, dict | None] = {}
 
     for key, prompt in zip(keys, parse_prompts):
         output_instructions = (
             "IMPORTANT: Reply with valid JSON only and nothing else. "
             "Do NOT include any explanatory text, markdown, or backticks. "
+            "For any missing or unknown values, use null — NEVER use placeholder strings like "
+            "\"not specified\", \"N/A\", \"none\", \"unknown\", or empty strings. "
             "The JSON must match the schema example below exactly (use the same keys):\n"
             + json.dumps(parse_schema_examples[key], indent=2)
         )
@@ -59,27 +48,16 @@ def parse(file: bytes) -> Resume:
         system_prompt = prompt + output_instructions
         message = [("system", system_prompt), ("user", page_text)]
 
-        res = model.invoke(message)  # actual AI call
+        res = model.invoke(message)
         raw = getattr(res, "text", str(res))
 
-        # try to parse JSON directly, or substring if possible
-        parsed = None
-        try:
-            parsed = json.loads(raw)
-        except Exception:
-            # first JSON
-            m = re.search(r"(\{.*\}|\[.*\])", raw, re.S)
-            if m:
-                try:
-                    parsed = json.loads(m.group(1))
-                except Exception:
-                    parsed = None
+        parsed = parse_json(raw)
 
         if parsed is None:
             print(f"failed to parse JSON for {key}")
             parsed_outputs[key] = None
         else:
-            parsed_outputs[key] = parsed
+            parsed_outputs[key] = sanitize_nulls(parsed)
 
     heading_education = parsed_outputs.get("heading_education") or {}
     experience_projects = parsed_outputs.get("experience_projects") or {}

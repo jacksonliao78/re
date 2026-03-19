@@ -1,43 +1,21 @@
 from app.models import Resume, Job, Suggestion
 from app.prompts import tailor_prompts, tailor_schema_examples
-import os
+from app.llm import get_model, parse_json
 import json
-from langchain_google_genai import ChatGoogleGenerativeAI
-import re
 
-
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except Exception:
-    pass
 
 def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
     
     suggestions: list[Suggestion] = []
-    api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "GOOGLE_API_KEY environment variable is not set.\n"
-            "Set it locally with: export GOOGLE_API_KEY=your_key\n"
-            "Or create a .env file with: GOOGLE_API_KEY=your_key"
-        )
 
-    # temp 0 to encourage deterministic output.
-    model = ChatGoogleGenerativeAI( model="gemini-2.5-flash", retries=2, api_key=api_key, temperature=0 ) 
+    model = get_model()
 
     keys = [ "languages", "technologies", "experience" ]
 
     parsed_outputs = {}
 
-    #first we need to give it the resume
-
-
-
     for i in range( len(tailor_prompts) ):
 
-        #skip if that thing doesn't exist
         if( getattr( resume, keys[i] ) is None ): continue
 
         output_instructions = (
@@ -57,18 +35,7 @@ def tailor_resume( resume: Resume, job: Job ) -> list[Suggestion]:
 
         print(raw)
 
-        # try to parse JSON directly, or substring if possible 
-        parsed = None
-        try:
-            parsed = json.loads(raw)
-        except Exception:
-            # first JSON 
-            m = re.search( r"(\{.*\}|\[.*\])", raw, re.S ) #regex
-            if m:
-                try:
-                    parsed = json.loads(m.group(1))
-                except Exception:
-                    parsed = None
+        parsed = parse_json(raw)
 
         if parsed is None:
             print("failed to parse JSON")
