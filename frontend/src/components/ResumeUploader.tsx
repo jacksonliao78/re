@@ -19,6 +19,7 @@ export default function ResumeUploader({ resume: propResume, originalResume, onR
   const [error, setError] = useState<string | null>(null);
   const [loadedFromStorage, setLoadedFromStorage] = useState(false);
   const [savingDefault, setSavingDefault] = useState(false);
+  const [savedDefault, setSavedDefault] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // sync with prop changes
@@ -129,15 +130,19 @@ export default function ResumeUploader({ resume: propResume, originalResume, onR
             type="button"
             onClick={async () => {
               setSavingDefault(true);
+              setSavedDefault(false);
+              const minDelay = new Promise((r) => setTimeout(r, 800));
               try {
-                await onSaveDefault();
+                await Promise.all([onSaveDefault(), minDelay]);
+                setSavedDefault(true);
+                setTimeout(() => setSavedDefault(false), 3000);
               } finally {
                 setSavingDefault(false);
               }
             }}
             disabled={savingDefault}
           >
-            {savingDefault ? "Saving…" : "Save as default resume"}
+            {savingDefault ? "Saving…" : savedDefault ? "\u2713 Saved" : "Save as default resume"}
           </button>
         )}
       </div>
