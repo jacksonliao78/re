@@ -1,60 +1,67 @@
-## get-a-job
+# get-a-job
 
-A full-stack app that parses PDF resumes, scrapes job postings, and uses an LLM to generate tailored resume suggestions.
+Full-stack app: upload a PDF resume (parsed with an LLM), browse or paste job postings, and get AI suggestions to tailor your resume—with a live PDF preview.
+
+**Stack:** FastAPI · React + TypeScript (Vite) · PostgreSQL · LangChain (Google Generative AI) · LaTeX (`pdflatex`) for resume PDFs.
 
 ### Pages
 
-- **Resume** (`/`) — Upload a PDF resume and preview the rendered output.
-- **Tailor** (`/tailor`) — Browse scraped jobs or paste a description, then generate and apply AI suggestions side-by-side with a live PDF preview.
+| Route | Description |
+|-------|-------------|
+| **`/`** | Landing page (overview, how it works, CTA). |
+| **`/resume`** | Upload a PDF, parse to structured data, preview the rendered resume. |
+| **`/tailor`** | Scrape jobs or paste a description, fetch suggestions, apply/reject next to the PDF viewer. |
 
-Accounts are optional. Logging in unlocks a saved default resume and ignored-job filtering across sessions.
+Accounts are **optional**; signing in enables a saved default resume and ignored-job filtering across sessions.
 
 ---
 
 ### Prerequisites
 
 - **Python** 3.10+ and **Node.js** 20+
-- **PostgreSQL** running locally
-- A **Google Generative AI API key**
+- **PostgreSQL** (local or remote)
+- **Google Generative AI API key** (`GOOGLE_API_KEY`)
+- **`pdflatex`** (e.g. [TeX Live](https://www.tug.org/texlive/)) for server-side PDF rendering
 
 ---
 
-### Backend setup
+### Backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create the database and configure environment variables:
+Create a database and a `backend/.env` file:
 
 ```bash
 createdb resumedb
-cp .env.example .env
 ```
 
-Edit `backend/.env`:
+Example `backend/.env`:
 
 ```env
-DATABASE_URL=postgresql://<your-db-user>@localhost:5432/resumedb
-JWT_SECRET_KEY=replace-with-a-long-random-string
-GOOGLE_API_KEY=your-google-generative-ai-key
+DATABASE_URL=postgresql://<user>@localhost:5432/resumedb
+JWT_SECRET_KEY=<long-random-string>
+GOOGLE_API_KEY=<your-google-ai-key>
+# Optional — must be a model your key can call (defaults in code if unset)
+# GOOGLE_MODEL=gemini-2.5-flash
 ```
 
-Initialize tables and start the server:
+Initialize the schema and run the API:
 
 ```bash
 python -m app.init_db
 uvicorn app.main:app --reload
 ```
 
-API docs at `http://localhost:8000/docs`.
+Open **http://localhost:8000/docs** for the interactive API.
 
 ---
 
-### Frontend setup
+### Frontend
 
 ```bash
 cd frontend
@@ -62,12 +69,15 @@ npm install
 npm run dev
 ```
 
-Runs at `http://localhost:5173/`. The Vite dev server proxies `/jobs`, `/resume`, and `/auth` to the backend on port 8000.
+App: **http://localhost:5173/**. Vite proxies API paths (e.g. `/jobs`, `/resume`, `/auth`) to the backend on port **8000** (see `frontend/vite.config.ts`).
 
 ---
 
-### Common issues
+### Troubleshooting
 
-- **`ModuleNotFoundError: No module named 'app'`** — Run `uvicorn` from inside `backend/`.
-- **JWT `jose.py` syntax error** — Wrong package installed. Run `pip uninstall -y jose && pip install "python-jose[cryptography]"`.
-- **GOOGLE_API_KEY error** — Check that the key is set in `backend/.env`.
+| Issue | What to try |
+|-------|-------------|
+| `ModuleNotFoundError: No module named 'app'` | Run `uvicorn` from the `backend/` directory. |
+| `GOOGLE_API_KEY` / model errors | Set the key in `backend/.env`. If you see `NOT_FOUND` for a model name, pick a supported model and set `GOOGLE_MODEL`. |
+| PDF render fails | Ensure `pdflatex` is on your `PATH` and TeX can compile the template. |
+| JWT / `jose` issues | Use `pip install "python-jose[cryptography]"` (not the unrelated `jose` package). |

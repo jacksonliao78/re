@@ -49,12 +49,11 @@ export default function LandingPage() {
         </h2>
 
         <div className="landing-step-block">
-          <div
-            className="landing-step-media"
-            aria-label="Screenshot placeholder: upload step"
-          >
-            <span className="landing-step-media-placeholder">Screenshot</span>
-            {/* Replace placeholder with <img src="..." alt="..." /> when ready */}
+          <div className="landing-step-media">
+            <img
+              src="/step1res.png"
+              alt="Upload step: drop a PDF resume and parse it into structured data"
+            />
           </div>
           <div className="landing-step-copy">
             <span className="landing-step-number" aria-hidden="true">
@@ -69,12 +68,11 @@ export default function LandingPage() {
         </div>
 
         <div className="landing-step-block landing-step-block--reverse">
-          <div
-            className="landing-step-media"
-            aria-label="Screenshot placeholder: find jobs step"
-          >
-            <span className="landing-step-media-placeholder">Screenshot</span>
-            {/* Replace placeholder with <img src="..." alt="..." /> when ready */}
+          <div className="landing-step-media">
+            <img
+              src="/step2res.png"
+              alt="Find jobs: search postings or paste a job description"
+            />
           </div>
           <div className="landing-step-copy">
             <span className="landing-step-number" aria-hidden="true">
@@ -89,12 +87,11 @@ export default function LandingPage() {
         </div>
 
         <div className="landing-step-block">
-          <div
-            className="landing-step-media"
-            aria-label="Screenshot placeholder: tailor step"
-          >
-            <span className="landing-step-media-placeholder">Screenshot</span>
-            {/* Replace placeholder with <img src="..." alt="..." /> when ready */}
+          <div className="landing-step-media">
+            <img
+              src="/step3res.png"
+              alt="Tailor step: review AI suggestions and apply changes to your resume"
+            />
           </div>
           <div className="landing-step-copy">
             <span className="landing-step-number" aria-hidden="true">
@@ -125,7 +122,7 @@ export default function LandingPage() {
         <div className="landing-site-footer">
           <a
             className="landing-site-footer-link"
-            href="https://github.com/yourusername/your-repo"
+            href="https://github.com/jacksonliao78/re"
             target="_blank"
             rel="noreferrer"
           >
