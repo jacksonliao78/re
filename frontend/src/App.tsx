@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, NavLink } from "react-router";
+import { Outlet, NavLink, Link } from "react-router";
 import "./App.css";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -43,9 +43,11 @@ function App() {
   return (
     <div className="app-root">
       <header className="app-nav">
-        <h1>get a job</h1>
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <h1>get a job</h1>
+        </Link>
         <nav className="nav-links">
-          <NavLink to="/" end>Resume</NavLink>
+          <NavLink to="/resume">Resume</NavLink>
           <NavLink to="/tailor">Tailor</NavLink>
         </nav>
         <div className="nav-auth">
@@ -73,7 +75,7 @@ function App() {
       </header>
 
       <main className="app-main">
-        <Outlet />
+        <Outlet context={{ showLogin: () => setShowAuthScreen(true) }} />
       </main>
     </div>
   );

@@ -23,38 +23,18 @@ export default function PasteJobDescription({ onTailor }: Props) {
 
   return (
     <div className="paste-job">
-      <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>
-        Or paste a job description:
-      </label>
+      <label>Or paste a job description:</label>
       <textarea
         value={pasted}
         onChange={(e) => setPasted(e.target.value)}
         placeholder="Paste job description here..."
         rows={6}
-        style={{
-          width: "100%",
-          padding: "0.75rem",
-          borderRadius: "6px",
-          border: "1px solid #e6e6e6",
-          fontSize: "0.9rem",
-          resize: "vertical",
-          boxSizing: "border-box",
-        }}
       />
       <button
         type="button"
+        className="paste-job-btn"
         onClick={handleUse}
         disabled={!pasted.trim()}
-        style={{
-          marginTop: "0.5rem",
-          padding: "0.5rem 1rem",
-          background: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: pasted.trim() ? "pointer" : "not-allowed",
-          opacity: pasted.trim() ? 1 : 0.6
-        }}
       >
         Use this description
       </button>

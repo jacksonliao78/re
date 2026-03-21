@@ -148,13 +148,13 @@ export default function ResumeUploader({ resume: propResume, originalResume, onR
       </div>
 
       {loadedFromStorage && resume && (
-        <div style={{ marginTop: "0.5rem", fontSize: "0.9rem", color: "#666" }}>
+        <div className="upload-status">
           Resume loaded from previous session
         </div>
       )}
 
       {error && (
-        <div className="upload-error" style={{ color: "red", marginTop: "1rem" }}>
+        <div className="upload-error">
           {error}
         </div>
       )}
