@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import text
 from app.database import init_db, engine, Base
-from app.db.models import User, IgnoredJob  # noqa: F401 - register tables with Base  
+from app.db.models import User, IgnoredJob, UserKnowledgeDocument, UserKnowledgeChunk  # noqa: F401 - register tables with Base
 
 def main():
     

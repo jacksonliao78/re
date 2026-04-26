@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 try:
     from dotenv import load_dotenv
@@ -36,6 +37,17 @@ def get_model():
         temperature=0,
         model_kwargs={"response_mime_type": "application/json"},
     )
+
+
+def get_embeddings_model():
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        return None
+    model_name = os.environ.get("GOOGLE_EMBEDDING_MODEL", "models/text-embedding-004")
+    try:
+        return GoogleGenerativeAIEmbeddings(model=model_name, google_api_key=api_key)
+    except Exception:
+        return None
 
 
 

@@ -186,3 +186,16 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class KnowledgeDocumentIn(BaseModel):
+    title: str
+    content: str
+    sourceType: Optional[str] = "note"
+
+
+class KnowledgeDocumentOut(BaseModel):
+    id: str
+    title: str
+    sourceType: str
+    chunkCount: int
