@@ -26,7 +26,7 @@ async def get_current_user_optional(
         return None
     try:
         user_uuid = uuid.UUID(user_id)
-    except ValueError:
+    except (ValueError, TypeError, AttributeError):
         return None
     user = db.query(User).filter(User.id == user_uuid).first()
     return user
@@ -55,7 +55,14 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    user_uuid = uuid.UUID(user_id)
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except (ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     user = db.query(User).filter(User.id == user_uuid).first()
     
     if user is None:

@@ -1,7 +1,7 @@
 from app.models import Resume, Job, Suggestion
 from app.prompts import tailor_prompts, tailor_schema_examples
 from app.llm import get_model, parse_json
-from app.rag import retrieve_relevant_chunks
+from app.rag import retrieve_relevant_chunks, KnowledgeStoreUnavailableError
 import json
 import uuid
 from sqlalchemy.orm import Session
@@ -29,8 +29,8 @@ def _tailor_resume_core(
     job: Job,
     evidence_chunks: list[dict] | None = None,
 ) -> list[Suggestion]:
-    
     suggestions: list[Suggestion] = []
+    job_description = (job.description or "").strip()
 
     model = get_model()
 
@@ -59,18 +59,15 @@ def _tailor_resume_core(
 
         system_prompt = tailor_prompts[i] + output_instructions + resume_instruction + grounding_instruction
 
-        message = [ ("system", system_prompt), ("human", job.description ) ]
+        message = [("system", system_prompt), ("human", job_description)]
 
         res = model.invoke( message )
 
         raw = getattr( res, "text", str(res) )
 
-        print(raw)
-
         parsed = parse_json(raw)
 
         if parsed is None:
-            print("failed to parse JSON")
             parsed_outputs[ keys[i] ] = None
         else:
             parsed_outputs[ keys[i] ] = parsed
@@ -127,10 +124,13 @@ def tailor_resume_with_rag(
     query = (
         f"Job title: {job.title}\n"
         f"Company: {job.company or ''}\n"
-        f"Description: {job.description}\n"
+        f"Description: {job.description or ''}\n"
         "Find relevant resume evidence for languages, technologies, and experience bullets."
     )
-    chunks = retrieve_relevant_chunks(db=db, user_id=user_id, query_text=query, top_k=10)
+    try:
+        chunks = retrieve_relevant_chunks(db=db, user_id=user_id, query_text=query, top_k=10)
+    except KnowledgeStoreUnavailableError:
+        return tailor_resume(resume, job)
     if not chunks:
         return tailor_resume(resume, job)
     return _tailor_resume_core(resume=resume, job=job, evidence_chunks=chunks)

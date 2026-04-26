@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing import Optional
 
 
@@ -6,11 +6,19 @@ class Job(BaseModel):
     id: str
     title: str
     position_level: Optional[str] = None
-    description: str
+    description: Optional[str] = None
     company: Optional[str] = None
     location: Optional[str] = None  # should be city and state ideally
     url: str
     # whatever other attributes a job might have
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_description_keys(cls, data):
+        if isinstance(data, dict) and "description" not in data and "jobDescription" in data:
+            data = dict(data)
+            data["description"] = data.get("jobDescription")
+        return data
 
 class SearchQuery(BaseModel):
     type: str

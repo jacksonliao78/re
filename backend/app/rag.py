@@ -3,9 +3,14 @@ import uuid
 from typing import Any
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.models import UserKnowledgeDocument, UserKnowledgeChunk
 from app.llm import get_embeddings_model
+
+
+class KnowledgeStoreUnavailableError(RuntimeError):
+    pass
 
 
 def _chunk_text(content: str, chunk_size: int = 700, overlap: int = 120) -> list[str]:
@@ -61,33 +66,37 @@ def ingest_user_knowledge(
     content: str,
     source_type: str = "note",
 ) -> tuple[UserKnowledgeDocument, int]:
-    doc = UserKnowledgeDocument(
-        user_id=user_id,
-        title=(title or "Untitled").strip()[:256] or "Untitled",
-        source_type=(source_type or "note").strip()[:64] or "note",
-        content=content or "",
-    )
-    db.add(doc)
-    db.flush()
-
-    chunks = _chunk_text(content)
-    rows: list[UserKnowledgeChunk] = []
-    for idx, chunk in enumerate(chunks):
-        rows.append(
-            UserKnowledgeChunk(
-                document_id=doc.id,
-                user_id=user_id,
-                chunk_index=idx,
-                text=chunk,
-                metadata_json={"title": doc.title, "source_type": doc.source_type},
-                embedding=_embed_text(chunk),
-            )
+    try:
+        doc = UserKnowledgeDocument(
+            user_id=user_id,
+            title=(title or "Untitled").strip()[:256] or "Untitled",
+            source_type=(source_type or "note").strip()[:64] or "note",
+            content=content or "",
         )
-    if rows:
-        db.bulk_save_objects(rows)
-    db.commit()
-    db.refresh(doc)
-    return doc, len(rows)
+        db.add(doc)
+        db.flush()
+
+        chunks = _chunk_text(content)
+        rows: list[UserKnowledgeChunk] = []
+        for idx, chunk in enumerate(chunks):
+            rows.append(
+                UserKnowledgeChunk(
+                    document_id=doc.id,
+                    user_id=user_id,
+                    chunk_index=idx,
+                    text=chunk,
+                    metadata_json={"title": doc.title, "source_type": doc.source_type},
+                    embedding=_embed_text(chunk),
+                )
+            )
+        if rows:
+            db.bulk_save_objects(rows)
+        db.commit()
+        db.refresh(doc)
+        return doc, len(rows)
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise KnowledgeStoreUnavailableError("knowledge store unavailable") from exc
 
 
 def retrieve_relevant_chunks(
@@ -97,7 +106,12 @@ def retrieve_relevant_chunks(
     top_k: int = 8,
 ) -> list[dict[str, Any]]:
     q_vec = _embed_text(query_text)
-    chunks = db.query(UserKnowledgeChunk).filter(UserKnowledgeChunk.user_id == user_id).all()
+    try:
+        chunks = (
+            db.query(UserKnowledgeChunk).filter(UserKnowledgeChunk.user_id == user_id).all()
+        )
+    except SQLAlchemyError as exc:
+        raise KnowledgeStoreUnavailableError("knowledge store unavailable") from exc
     scored: list[tuple[float, UserKnowledgeChunk]] = []
     for c in chunks:
         emb = c.embedding if isinstance(c.embedding, list) else []
@@ -121,24 +135,94 @@ def retrieve_relevant_chunks(
 
 
 def list_user_knowledge_documents(db: Session, user_id: uuid.UUID) -> list[dict[str, Any]]:
-    docs = (
-        db.query(UserKnowledgeDocument)
-        .filter(UserKnowledgeDocument.user_id == user_id)
-        .order_by(UserKnowledgeDocument.created_at.desc())
-        .all()
-    )
-    counts: dict[str, int] = {}
-    for d in docs:
-        counts[str(d.id)] = (
-            db.query(UserKnowledgeChunk).filter(UserKnowledgeChunk.document_id == d.id).count()
+    try:
+        docs = (
+            db.query(UserKnowledgeDocument)
+            .filter(UserKnowledgeDocument.user_id == user_id)
+            .order_by(UserKnowledgeDocument.created_at.desc())
+            .all()
         )
+        counts: dict[str, int] = {}
+        for d in docs:
+            counts[str(d.id)] = (
+                db.query(UserKnowledgeChunk)
+                .filter(UserKnowledgeChunk.document_id == d.id)
+                .count()
+            )
 
-    return [
-        {
-            "id": str(d.id),
-            "title": d.title,
-            "sourceType": d.source_type,
-            "chunkCount": counts.get(str(d.id), 0),
+        return [
+            {
+                "id": str(d.id),
+                "title": d.title,
+                "sourceType": d.source_type,
+                "chunkCount": counts.get(str(d.id), 0),
+            }
+            for d in docs
+        ]
+    except SQLAlchemyError as exc:
+        raise KnowledgeStoreUnavailableError("knowledge store unavailable") from exc
+
+
+def get_user_knowledge_document(
+    db: Session, user_id: uuid.UUID, doc_id: str | uuid.UUID
+) -> dict[str, Any] | None:
+    try:
+        parsed_doc_id = doc_id if isinstance(doc_id, uuid.UUID) else uuid.UUID(str(doc_id))
+    except (ValueError, TypeError):
+        return None
+
+    try:
+        doc = (
+            db.query(UserKnowledgeDocument)
+            .filter(
+                UserKnowledgeDocument.id == parsed_doc_id,
+                UserKnowledgeDocument.user_id == user_id,
+            )
+            .first()
+        )
+        if doc is None:
+            return None
+
+        chunk_count = (
+            db.query(UserKnowledgeChunk)
+            .filter(UserKnowledgeChunk.document_id == doc.id)
+            .count()
+        )
+        return {
+            "id": str(doc.id),
+            "title": doc.title,
+            "sourceType": doc.source_type,
+            "content": doc.content,
+            "chunkCount": chunk_count,
         }
-        for d in docs
-    ]
+    except SQLAlchemyError as exc:
+        raise KnowledgeStoreUnavailableError("knowledge store unavailable") from exc
+
+
+def delete_user_knowledge_document(
+    db: Session, user_id: uuid.UUID, doc_id: str | uuid.UUID
+) -> bool:
+    try:
+        parsed_doc_id = doc_id if isinstance(doc_id, uuid.UUID) else uuid.UUID(str(doc_id))
+    except (ValueError, TypeError):
+        return False
+
+    try:
+        doc = (
+            db.query(UserKnowledgeDocument)
+            .filter(
+                UserKnowledgeDocument.id == parsed_doc_id,
+                UserKnowledgeDocument.user_id == user_id,
+            )
+            .first()
+        )
+        if doc is None:
+            return False
+
+        db.query(UserKnowledgeChunk).filter(UserKnowledgeChunk.document_id == doc.id).delete()
+        db.delete(doc)
+        db.commit()
+        return True
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise KnowledgeStoreUnavailableError("knowledge store unavailable") from exc
