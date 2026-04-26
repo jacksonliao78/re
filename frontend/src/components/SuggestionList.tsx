@@ -7,13 +7,19 @@ import "../App.css";
 type Props = {
     resume: Resume | null;
     job: Job | null;
+    token?: string | null;
     onResumeUpdate?: (updatedResume: Resume) => void;
     // add job to ignored and clear suggestions panel 
     onComplete?: (job: Job) => void;
 }
 
-export default function SuggestionList({ resume, job, onResumeUpdate, onComplete }: Props) {
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+type SuggestionItem = {
+    id: string;
+    suggestion: Suggestion;
+};
+
+export default function SuggestionList({ resume, job, token, onResumeUpdate, onComplete }: Props) {
+    const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
@@ -36,8 +42,13 @@ export default function SuggestionList({ resume, job, onResumeUpdate, onComplete
         setLoading(true);
         setError(null);
         try {
-            const fetched = await getSuggestions(currentResume, job);
-            setSuggestions(fetched);
+            const fetched = await getSuggestions(currentResume, job, token);
+            setSuggestions(
+                fetched.map((suggestion, index) => ({
+                    id: `${suggestion.section}-${suggestion.entryIdx ?? "none"}-${suggestion.bulletIdx ?? "none"}-${index}`,
+                    suggestion,
+                }))
+            );
 
             // reset with new list
             setAppliedIds(new Set());
@@ -50,13 +61,11 @@ export default function SuggestionList({ resume, job, onResumeUpdate, onComplete
         }
     }
 
-    function handleApply(suggestion: Suggestion) {
-        const suggestionId = `${suggestion.section}-${suggestion.entryIdx ?? 'none'}-${suggestion.bulletIdx ?? 'none'}`;
+    function handleApply(suggestionId: string) {
         setAppliedIds(new Set([...appliedIds, suggestionId]));
     }
 
-    function handleReject(suggestion: Suggestion) {
-        const suggestionId = `${suggestion.section}-${suggestion.entryIdx ?? 'none'}-${suggestion.bulletIdx ?? 'none'}`;
+    function handleReject(suggestionId: string) {
         setRejectedIds(new Set([...rejectedIds, suggestionId]));
     }
 
@@ -66,10 +75,7 @@ export default function SuggestionList({ resume, job, onResumeUpdate, onComplete
     }
 
     // filter rejected suggestions
-    const visibleSuggestions = suggestions.filter(s => {
-        const suggestionId = `${s.section}-${s.entryIdx ?? 'none'}-${s.bulletIdx ?? 'none'}`;
-        return !rejectedIds.has(suggestionId);
-    });
+    const visibleSuggestions = suggestions.filter((s) => !rejectedIds.has(s.id));
 
     if (!currentResume || !job) {
         return (
@@ -142,15 +148,15 @@ export default function SuggestionList({ resume, job, onResumeUpdate, onComplete
 
             {visibleSuggestions.length > 0 && (
                 <div className="suggestion-list-content">
-                    {visibleSuggestions.map((suggestion, index) => {
-                        const suggestionId = `${suggestion.section}-${suggestion.entryIdx ?? 'none'}-${suggestion.bulletIdx ?? 'none'}`;
+                    {visibleSuggestions.map((item) => {
+                        const suggestionId = item.id;
                         return (
                             <SuggestionCard
-                                key={`${suggestionId}-${index}`}
-                                suggestion={suggestion}
+                                key={suggestionId}
+                                suggestion={item.suggestion}
                                 resume={currentResume}
-                                onApply={handleApply}
-                                onReject={handleReject}
+                                onApply={() => handleApply(suggestionId)}
+                                onReject={() => handleReject(suggestionId)}
                                 onResumeUpdate={handleResumeUpdate}
                                 isApplied={appliedIds.has(suggestionId)}
                                 isRejected={rejectedIds.has(suggestionId)}

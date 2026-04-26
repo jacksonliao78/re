@@ -71,6 +71,7 @@ export default function TailorPage() {
               key={jobForTailoring.id || jobForTailoring.url}
               resume={resume}
               job={jobForTailoring}
+              token={token}
               onResumeUpdate={setResume}
               onComplete={handleIgnoreOrComplete}
             />

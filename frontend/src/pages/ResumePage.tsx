@@ -1,5 +1,6 @@
 import ResumeUploader from "../components/ResumeUploader";
 import ResumeViewer from "../components/ResumeViewer";
+import KnowledgePanel from "../components/KnowledgePanel";
 import { useResume } from "../contexts/ResumeContext";
 import { useAuth } from "../contexts/AuthContext";
 import { saveDefaultResume } from "../api/auth";
@@ -21,6 +22,7 @@ export default function ResumePage() {
               : undefined
           }
         />
+        <KnowledgePanel token={token} />
       </div>
       <div className="resume-page-viewer">
         {resume ? (

@@ -1,16 +1,32 @@
 import type { Suggestion, Resume, Job } from "../types";
 
-export async function getSuggestions(resume: Resume, job: Job): Promise<Suggestion[]> {
+async function getErrorDetail(resp: Response): Promise<string> {
     try {
+        const data = await resp.json();
+        if (data && typeof data.detail === "string" && data.detail.trim()) {
+            return data.detail;
+        }
+        return JSON.stringify(data);
+    } catch {
+        return await resp.text();
+    }
+}
+
+export async function getSuggestions(resume: Resume, job: Job, token?: string | null): Promise<Suggestion[]> {
+    try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
         const resp = await fetch("/resume/tailor", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers,
             body: JSON.stringify({ resume, job }),
         });
 
         if (!resp.ok) {
-            const text = await resp.text();
-            throw new Error(`Failed to get suggestions: ${resp.status} ${text}`);
+            const detail = await getErrorDetail(resp);
+            throw new Error(`Failed to get suggestions: ${resp.status} ${detail}`);
         }
 
         const suggestions = await resp.json() as Suggestion[];

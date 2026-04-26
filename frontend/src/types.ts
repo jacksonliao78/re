@@ -58,3 +58,14 @@ export interface Resume {
   experience?: Experience[] | null;
   projects?: Project[] | null;
 }
+
+export interface KnowledgeDocument {
+  id: string;
+  title: string;
+  sourceType: string;
+  chunkCount: number;
+}
+
+export interface KnowledgeDocumentDetail extends KnowledgeDocument {
+  content: string;
+}
