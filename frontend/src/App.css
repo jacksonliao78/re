@@ -105,30 +105,113 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
+  padding: 1.25rem;
+  gap: 1.25rem;
 }
 
-.tailor-content {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 1rem;
-  padding: 1rem;
-  height: 70vh;
+.tailor-page-header {
   flex-shrink: 0;
 }
 
-.tailor-viewer {
-  display: flex;
-  flex-direction: column;
+.tailor-page-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tailor-page-header p {
+  margin: 0.25rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.tailor-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 340px) minmax(420px, 1fr) minmax(340px, 400px);
+  gap: 1.5rem;
+  flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-.tailor-suggestions {
+.tailor-source-panel,
+.tailor-preview-panel,
+.tailor-action-panel {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  min-width: 0;
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-surface) 100%);
+  box-shadow: var(--shadow-card);
+  overflow-wrap: anywhere;
+}
+
+.tailor-source-panel,
+.tailor-action-panel {
+  padding: 1.15rem;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tailor-preview-panel {
+  padding: 1.15rem;
+  overflow: hidden;
+}
+
+.panel-heading {
+  margin-bottom: 1rem;
+}
+
+.panel-heading h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: "Outfit", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.panel-heading p {
+  margin: 0.2rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.selected-job-summary {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-base);
+  overflow-wrap: anywhere;
+}
+
+.selected-job-summary strong,
+.selected-job-summary span {
+  display: block;
+}
+
+.selected-job-summary strong {
+  margin-top: 0.15rem;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.selected-job-summary span,
+.selected-job-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.selected-job-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* ── Shared: Resume viewer ── */
@@ -159,9 +242,7 @@
 /* ── Shared: Job scrape section ── */
 .job-scrape-section {
   flex-shrink: 0;
-  padding: 1rem 1rem 0.5rem;
-  background: var(--bg-base);
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 0;
 }
 
 .job-scrape-header {
@@ -171,16 +252,81 @@
 .job-scrape-body {
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-muted);
-  padding: 1.25rem;
-  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-base) 100%);
-  box-shadow: var(--shadow-card);
+  padding: 1rem;
+  background: var(--bg-base);
 }
 
 .job-paste-section {
   flex-shrink: 0;
-  padding: 0.5rem 1rem 0.75rem;
-  max-width: 400px;
-  margin: 0 auto;
+  margin-top: 1rem;
+}
+
+.tailor-source-panel .job-selector {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tailor-source-panel .job-list-container {
+  flex-direction: column;
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
+.tailor-source-panel .job-list-card-wrapper {
+  width: 100%;
+  min-width: 0;
+}
+
+.tailor-source-panel .job-card,
+.tailor-action-panel .suggestion-card {
+  overflow-wrap: anywhere;
+}
+
+.tailor-action-panel .suggestion-list {
+  margin: 0;
+}
+
+.tailor-action-panel .suggestion-content {
+  grid-template-columns: 1fr;
+}
+
+.tailor-action-panel .suggestion-arrow {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .tailor-page {
+    overflow-y: auto;
+  }
+
+  .tailor-workspace {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .tailor-source-panel,
+  .tailor-preview-panel,
+  .tailor-action-panel {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 700px) {
+  .tailor-page {
+    padding: 0.85rem;
+  }
+
+  .tailor-page-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .tailor-source-panel,
+  .tailor-preview-panel,
+  .tailor-action-panel {
+    min-height: 360px;
+    padding: 0.75rem;
+  }
 }
 
 /* ── Job selector ── */

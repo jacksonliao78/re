@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type SelectorPayload = {
   type: string
@@ -16,6 +16,10 @@ export default function JobSelector( { onChange }: Props ) {
   const [jobType, setJobType] = useState<string>(JOB_TYPES[0]);
   const [isIntern, setIsIntern] = useState<boolean>(false);
   const [isFullTime, setIsFullTime] = useState<boolean>(false);
+
+  useEffect(() => {
+    onChange?.({ type: JOB_TYPES[0], intern: false, fullTime: false });
+  }, []);
 
   function notify(payload: SelectorPayload) {
     onChange?.(payload);

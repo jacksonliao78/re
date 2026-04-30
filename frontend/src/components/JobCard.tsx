@@ -39,7 +39,14 @@ export default function JobCard( { job, onSelect, onTailor, onIgnore }: Props ) 
                     </>
                 )}
                 {job.url && (
-                    <a href={job.url} target="_blank" rel="noreferrer">View</a>
+                    <a
+                        href={job.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        View
+                    </a>
                 )}
             </div>
         </article>

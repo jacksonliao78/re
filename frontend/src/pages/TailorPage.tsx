@@ -29,33 +29,56 @@ export default function TailorPage() {
       try {
         await addIgnoredJob(job.id || job.url, token);
         setRefreshJobsKey((k) => k + 1);
-      } catch (_) {}
+      } catch {
+        // Keep the tailoring flow moving if saving the ignored job fails.
+      }
     }
     setJobForTailoring(null);
   }
 
+  const selectedJobMeta = jobForTailoring
+    ? [jobForTailoring.company, jobForTailoring.location].filter(Boolean).join(" - ")
+    : "";
+
   return (
     <div className="tailor-page">
-      <section className="job-scrape-section">
-        <div className="job-scrape-header">
-          <JobSelector onChange={(q) => setQuery(q)} />
-        </div>
-        <div className="job-scrape-body">
-          <JobList
-            query={query}
-            onTailor={handleTailor}
-            onIgnore={handleIgnoreOrComplete}
-            token={token}
-            refreshTrigger={refreshJobsKey}
-          />
-        </div>
-        <div className="job-paste-section">
-          <PasteJobDescription onTailor={handleTailor} />
-        </div>
-      </section>
+      <header className="tailor-page-header">
+        <h2>Tailor your resume</h2>
+        <p>Choose a job, review your resume, then apply targeted suggestions.</p>
+      </header>
 
-      <section className="tailor-content">
-        <div className="tailor-viewer">
+      <div className="tailor-workspace">
+        <section className="tailor-source-panel" aria-label="Job and input source">
+          <div className="panel-heading">
+            <h3>Job source</h3>
+            <p>Scrape jobs or paste a description to begin tailoring.</p>
+          </div>
+
+          <div className="job-scrape-section">
+            <div className="job-scrape-header">
+              <JobSelector onChange={(q) => setQuery(q)} />
+            </div>
+            <div className="job-scrape-body">
+              <JobList
+                query={query}
+                onTailor={handleTailor}
+                onIgnore={handleIgnoreOrComplete}
+                token={token}
+                refreshTrigger={refreshJobsKey}
+              />
+            </div>
+          </div>
+
+          <div className="job-paste-section">
+            <PasteJobDescription onTailor={handleTailor} />
+          </div>
+        </section>
+
+        <section className="tailor-preview-panel" aria-label="Resume preview">
+          <div className="panel-heading">
+            <h3>Resume preview</h3>
+            <p>Suggestions update this preview as you apply them.</p>
+          </div>
           {resume ? (
             <ResumeViewer resume={resume} />
           ) : (
@@ -63,9 +86,22 @@ export default function TailorPage() {
               Upload a resume first to tailor it.
             </div>
           )}
-        </div>
+        </section>
 
-        <aside className="tailor-suggestions">
+        <aside className="tailor-action-panel" aria-label="Suggestions and actions">
+          <div className="panel-heading">
+            <h3>Suggestions</h3>
+            <p>Generate and apply updates for the selected job.</p>
+          </div>
+
+          {jobForTailoring && (
+            <div className="selected-job-summary">
+              <div className="selected-job-label">Selected job</div>
+              <strong>{jobForTailoring.title}</strong>
+              {selectedJobMeta && <span>{selectedJobMeta}</span>}
+            </div>
+          )}
+
           {jobForTailoring ? (
             <SuggestionList
               key={jobForTailoring.id || jobForTailoring.url}
@@ -81,7 +117,7 @@ export default function TailorPage() {
             </div>
           )}
         </aside>
-      </section>
+      </div>
     </div>
   );
 }

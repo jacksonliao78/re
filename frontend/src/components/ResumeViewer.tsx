@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Resume } from "../types";
 
 type Props = {
@@ -10,9 +10,12 @@ export default function ResumeViewer({ resume, className = "" }: Props) {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const renderRequestSeq = useRef(0);
 
   useEffect(() => {
     let revokedUrl: string | null = null;
+    const requestId = ++renderRequestSeq.current;
+    const controller = new AbortController();
 
     async function fetchPdf() {
       if (!resume) {
@@ -27,6 +30,7 @@ export default function ResumeViewer({ resume, className = "" }: Props) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(resume),
+          signal: controller.signal,
         });
         if (!resp.ok) {
           const text = await resp.text();
@@ -34,19 +38,29 @@ export default function ResumeViewer({ resume, className = "" }: Props) {
         }
         const blob = await resp.blob();
         const url = URL.createObjectURL(blob);
+        if (requestId !== renderRequestSeq.current) {
+          URL.revokeObjectURL(url);
+          return;
+        }
         revokedUrl = url;
         setPdfUrl(url);
       } catch (err: any) {
+        if (err?.name === "AbortError" || requestId !== renderRequestSeq.current) {
+          return;
+        }
         setError(err?.message || "Failed to render resume PDF");
         setPdfUrl(null);
       } finally {
-        setLoading(false);
+        if (requestId === renderRequestSeq.current) {
+          setLoading(false);
+        }
       }
     }
 
     fetchPdf();
 
     return () => {
+      controller.abort();
       if (revokedUrl) {
         URL.revokeObjectURL(revokedUrl);
       }
